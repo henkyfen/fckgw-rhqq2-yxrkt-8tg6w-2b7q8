@@ -2,6 +2,8 @@ export default class DesktopWindow extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
   isDragging = false;
+  maxX;
+  maxY;
   offsetX;
   offsetY;
 
@@ -16,9 +18,14 @@ export default class DesktopWindow extends HTMLElement {
 
     document.addEventListener('mousemove', (e) => {
       const instance = DesktopWindow.currentDraggedInstance;
+
       if (instance && instance.isDragging) {
-        instance.style.left = `${e.clientX - instance.offsetX}px`;
-        instance.style.top = `${e.clientY - instance.offsetY}px`;
+        // -1 to prevent window from slight shrinking and resulting title bar text wrapping
+        const newX = Math.min(Math.max(0, e.clientX - instance.offsetX), instance.maxX - 1);
+        const newY = Math.min(Math.max(0, e.clientY - instance.offsetY), instance.maxY);
+
+        instance.style.left = `${newX}px`;
+        instance.style.top = `${newY}px`;
       }
     });
 
@@ -38,7 +45,27 @@ export default class DesktopWindow extends HTMLElement {
   }
 
   render() {
-    this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
+    // 32 (taskbar height) + 28 (window title bar height) = 60
+    this.maxY = window.innerHeight - 60;
+    this.shadowRoot.innerHTML = this.getStyles();
+
+    const title = this.getAttribute('title') || 'Untitled Window';
+
+    const container = document.createElement('div');
+    container.classList.add('window');
+    container.innerHTML = `
+        <div class="window__title-bar">
+          <div class="window__title-bar-text">${title}</div>
+          <div class="window__title-bar-controls">
+            <button aria-label="Minimize"></button>
+            <button aria-label="Close"></button>
+          </div>
+        </div>
+        <div class="window__body">
+        </div>
+    `;
+
+    this.shadowRoot.appendChild(container);
   }
 
   addEventListeners() {
@@ -47,7 +74,7 @@ export default class DesktopWindow extends HTMLElement {
         this.isDragging = true;
         this.offsetX = e.clientX - this.offsetLeft;
         this.offsetY = e.clientY - this.offsetTop;
-        console.log(this);
+        this.maxX = window.innerWidth - this.offsetWidth;
         DesktopWindow.currentDraggedInstance = this;
       }
     });
@@ -58,7 +85,7 @@ export default class DesktopWindow extends HTMLElement {
       <style>
         :host {
           display: block;
-          position: relative;
+          position: fixed;
           width: fit-content;
           height: fit-content;
 
@@ -75,7 +102,6 @@ export default class DesktopWindow extends HTMLElement {
         .window__title-bar {
           user-select: none;
           box-sizing: content-box;
-          font-family: 'Trebuchet MS';
           background: linear-gradient(
             180deg,
             rgba(9, 151, 255, 1) 0%,
@@ -95,6 +121,8 @@ export default class DesktopWindow extends HTMLElement {
           border-top-right-radius: 7px;
           font-size: 13px;
           text-shadow: 1px 1px #0f1089;
+          min-width: 112px;
+          min-height: 27px;
           height: 21px;
           display: flex;
           justify-content: space-between;
@@ -195,22 +223,6 @@ export default class DesktopWindow extends HTMLElement {
           background-image: url('./assets/icons/close-active.svg');
         }
       </style>
-    `;
-  }
-
-  getTemplate() {
-    return `
-      <div class="window">
-        <div class="window__title-bar">
-          <div class="window__title-bar-text">My First Program</div>
-          <div class="window__title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Close"></button>
-          </div>
-        </div>
-        <div class="window__body">
-        </div>
-      </div>
     `;
   }
 }

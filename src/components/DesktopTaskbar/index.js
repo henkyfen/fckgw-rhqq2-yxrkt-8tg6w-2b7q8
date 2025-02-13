@@ -31,6 +31,10 @@ export default class DesktopTaskbar extends HTMLElement {
         user-select: none;
       }
 
+      :host {
+        z-index: 100;
+      }
+
       .taskbar {
         flex-shrink: 0;
         display: flex;
