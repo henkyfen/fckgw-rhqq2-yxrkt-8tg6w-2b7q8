@@ -9,14 +9,17 @@ export default class PersonalWebDesktop extends HTMLElement {
 
   render() {
     this.shadowRoot.innerHTML = this.getStyles();
-    const component = this.createComponent();
-    this.shadowRoot.appendChild(component);
-  }
 
-  createComponent() {
-    const container = document.createElement('div');
-    container.classList.add('personal-web-desktop');
-    return container;
+    const personalWebDesktop = document.createElement('div');
+    personalWebDesktop.classList.add('personal-web-desktop');
+
+    const grid = document.createElement('desktop-grid');
+    const desktopTaskbar = document.createElement('desktop-taskbar');
+
+    personalWebDesktop.appendChild(grid);
+    personalWebDesktop.appendChild(desktopTaskbar);
+
+    this.shadowRoot.appendChild(personalWebDesktop);
   }
 
   addEventListeners() {}
@@ -25,6 +28,10 @@ export default class PersonalWebDesktop extends HTMLElement {
     return `
       <style>
         .personal-web-desktop {
+          display: flex;
+          flex-direction: column;
+          min-width: 800px;
+          min-height: 600px;
           width: 100svw;
           height: 100svh;
           overflow: hidden;
