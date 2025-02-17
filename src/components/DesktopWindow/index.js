@@ -89,6 +89,9 @@ export default class DesktopWindow extends HTMLElement {
           width: fit-content;
           height: fit-content;
 
+          min-width: 112px;
+          min-height: 27px;
+
           font-size: 11px;
           box-shadow: inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0,
             inset 2px 2px #166aee, inset -3px -3px #003bda, inset 3px 3px #0855dd;
@@ -121,8 +124,6 @@ export default class DesktopWindow extends HTMLElement {
           border-top-right-radius: 7px;
           font-size: 13px;
           text-shadow: 1px 1px #0f1089;
-          min-width: 112px;
-          min-height: 27px;
           height: 21px;
           display: flex;
           justify-content: space-between;
