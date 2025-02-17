@@ -1,8 +1,12 @@
 export default class PersonalWebDesktop extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
-  constructor() {
-    super();
+  lastOpenedX = 30;
+  lastOpenedY = 30;
+  openedWindows = new Map();
+  taskbar;
+
+  connectedCallback() {
     this.render();
     this.addEventListeners();
   }
@@ -15,6 +19,7 @@ export default class PersonalWebDesktop extends HTMLElement {
 
     const grid = document.createElement('desktop-grid');
     const desktopTaskbar = document.createElement('desktop-taskbar');
+    this.taskbar = desktopTaskbar;
 
     personalWebDesktop.appendChild(grid);
     personalWebDesktop.appendChild(desktopTaskbar);
@@ -22,7 +27,89 @@ export default class PersonalWebDesktop extends HTMLElement {
     this.shadowRoot.appendChild(personalWebDesktop);
   }
 
-  addEventListeners() {}
+  addEventListeners() {
+    this.shadowRoot.addEventListener('iconDoubleClick', this.handleIconDoubleClick.bind(this));
+    this.shadowRoot.addEventListener('clickTab', this.handleClickTab.bind(this));
+    this.shadowRoot.addEventListener('closeWindow', this.handleWindowClose.bind(this));
+  }
+
+  handleWindowClose(event) {
+    const { id } = event.detail;
+    const window = this.openedWindows.get(id);
+
+    if (window) {
+      window.remove();
+      this.openedWindows.delete(id);
+    }
+
+    const removeTabEvent = new CustomEvent('removeTab', {
+      detail: { id },
+      bubbles: false,
+      composed: true,
+    });
+
+    this.taskbar.dispatchEvent(removeTabEvent);
+  }
+
+  handleIconDoubleClick(event) {
+    const { windowTitle } = event.detail;
+
+    const { id, chatWindow } = this.createWindow(windowTitle);
+
+    if (id === null) return;
+
+    this.shadowRoot.appendChild(chatWindow);
+    this.positionWindow(chatWindow);
+
+    const customEvent = new CustomEvent('updateTaskbar', {
+      detail: { windowTitle, id },
+      bubbles: false,
+      composed: true,
+    });
+
+    this.taskbar.dispatchEvent(customEvent);
+  }
+
+  handleClickTab(event) {
+    const { id } = event.detail;
+    const window = this.openedWindows.get(id);
+    window.style.display = window.style.display === 'none' ? 'block' : 'none';
+  }
+
+  createWindow(windowTitle) {
+    const chatWindow = document.createElement('desktop-window');
+    chatWindow.setAttribute('title', windowTitle);
+    const id = this.generateUniqueId();
+    chatWindow.setAttribute('id', id);
+    this.openedWindows.set(id, chatWindow);
+
+    return { id, chatWindow };
+  }
+
+  generateUniqueId() {
+    return Math.random().toString(36).substring(2, 8);
+  }
+
+  positionWindow(element) {
+    setTimeout(() => {
+      this.lastOpenedX += 20;
+      this.lastOpenedY += 28;
+
+      const maxX = window.innerWidth - element.offsetWidth;
+      const maxY = window.innerHeight - (32 + element.offsetHeight); // 32 = taskbar height
+
+      if (this.lastOpenedX > maxX) {
+        this.lastOpenedX = 50;
+      }
+
+      if (this.lastOpenedY > maxY) {
+        this.lastOpenedY = 50;
+      }
+
+      element.style.left = `${this.lastOpenedX}px`;
+      element.style.top = `${this.lastOpenedY}px`;
+    }, 0);
+  }
 
   getStyles() {
     return `

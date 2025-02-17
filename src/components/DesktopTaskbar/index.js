@@ -1,8 +1,9 @@
 export default class DesktopTaskbar extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
-  constructor() {
-    super();
+  openedTabs = new Map();
+
+  connectedCallback() {
     this.render();
     this.addEventListeners();
     this.updateTime();
@@ -10,10 +11,65 @@ export default class DesktopTaskbar extends HTMLElement {
   }
 
   render() {
-    this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
+    this.shadowRoot.innerHTML = this.getStyles();
+
+    const taskbar = document.createElement('div');
+    taskbar.classList.add('taskbar');
+
+    const startButton = document.createElement('div');
+    startButton.classList.add('start-button');
+    startButton.innerHTML = `
+      <img src="./assets/icons/logo.svg">
+      <span>start</span>
+      `;
+
+    const openedTabs = document.createElement('div');
+    openedTabs.classList.add('opened-tabs');
+
+    const time = document.createElement('div');
+    time.classList.add('time');
+
+    taskbar.appendChild(startButton);
+    taskbar.appendChild(openedTabs);
+    taskbar.appendChild(time);
+
+    this.shadowRoot.appendChild(taskbar);
   }
 
-  addEventListeners() {}
+  addEventListeners() {
+    this.addEventListener('updateTaskbar', this.handleUpdateTaskbar.bind(this));
+    this.addEventListener('removeTab', this.handleRemoveTab.bind(this));
+  }
+
+  handleUpdateTaskbar(event) {
+    const taskbar = this.shadowRoot.querySelector('.opened-tabs');
+
+    const newTab = document.createElement('div');
+    newTab.classList.add('open-tab');
+    newTab.textContent = event.detail.windowTitle;
+    newTab.setAttribute('data-id', event.detail.id);
+    newTab.addEventListener('click', this.handleTabClick.bind(this));
+    this.openedTabs.set(event.detail.id, newTab);
+
+    taskbar.appendChild(newTab);
+  }
+
+  handleTabClick(event) {
+    const id = event.target.getAttribute('data-id');
+    const clickTab = new CustomEvent('clickTab', {
+      detail: { id },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(clickTab);
+  }
+
+  handleRemoveTab(event) {
+    const tabId = event.detail.id;
+    const tab = this.openedTabs.get(tabId);
+    tab.remove();
+    this.openedTabs.delete(tabId);
+  }
 
   updateTime() {
     const timeElement = this.shadowRoot.querySelector('.time');
@@ -122,34 +178,6 @@ export default class DesktopTaskbar extends HTMLElement {
         flex-shrink: 0;
       }
     </style>
-      `;
-  }
-
-  getTemplate() {
-    return `
-      <div class="taskbar">
-        <div class="start-button">
-          <img src="./assets/icons/logo.svg">
-          <span>start</span>
-        </div>
-
-        <div class="opened-tabs">
-          <div class="open-tab">
-            Documents
-          </div>
-          <div class="open-tab">
-            My Computer
-          </div>
-          <div class="open-tab">
-            My Network
-          </div>
-          <div class="open-tab readme active">
-            ReadME.txt
-          </div>
-        </div>
-
-        <div class="time" />
-      </div>
       `;
   }
 }

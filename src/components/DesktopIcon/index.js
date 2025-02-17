@@ -1,16 +1,20 @@
 export default class DesktopIcon extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
-  constructor() {
-    super();
+  name;
+
+  connectedCallback() {
     this.render();
+    this.addEventListeners();
   }
 
   render() {
+    this.shadowRoot.innerHTML = this.getStyles();
+
     const iconSrc = this.getAttribute('icon-src') || './assets/images/folder-empty.png';
     const name = this.getAttribute('name') || 'New Folder';
+    this.name = name;
 
-    this.shadowRoot.innerHTML = this.getStyles();
     const cell = document.createElement('div');
     cell.classList.add('desktop-icon');
 
@@ -22,6 +26,19 @@ export default class DesktopIcon extends HTMLElement {
     `;
 
     this.shadowRoot.appendChild(cell);
+  }
+
+  addEventListeners() {
+    this.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+  }
+
+  handleDoubleClick() {
+    const event = new CustomEvent('iconDoubleClick', {
+      detail: { windowTitle: this.name },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
   }
 
   getStyles() {

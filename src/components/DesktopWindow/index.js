@@ -38,8 +38,7 @@ export default class DesktopWindow extends HTMLElement {
     });
   }
 
-  constructor() {
-    super();
+  connectedCallback() {
     this.render();
     this.addEventListeners();
   }
@@ -77,6 +76,19 @@ export default class DesktopWindow extends HTMLElement {
         this.maxX = window.innerWidth - this.offsetWidth;
         DesktopWindow.currentDraggedInstance = this;
       }
+    });
+
+    this.shadowRoot.querySelector('button[aria-label="Close"]').addEventListener('click', () => {
+      const closeEvent = new CustomEvent('closeWindow', {
+        detail: { id: this.id },
+        bubbles: true,
+        composed: true,
+      });
+      this.dispatchEvent(closeEvent);
+    });
+
+    this.shadowRoot.querySelector('button[aria-label="Minimize"]').addEventListener('click', () => {
+      this.style.display = 'none';
     });
   }
 

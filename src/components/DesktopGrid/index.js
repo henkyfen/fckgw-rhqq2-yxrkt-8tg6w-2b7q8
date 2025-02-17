@@ -6,8 +6,7 @@ export default class DesktopGrid extends HTMLElement {
   initialColumn;
   initialRow;
 
-  constructor() {
-    super();
+  connectedCallback() {
     this.render();
     this.addEventListeners();
   }
@@ -18,13 +17,20 @@ export default class DesktopGrid extends HTMLElement {
     const grid = document.createElement('div');
     grid.classList.add('grid');
 
-    grid.innerHTML = `
-      <desktop-icon name="Projects" style="grid-column-start: 1; grid-row-start: 1;"></desktop-icon>
-      <desktop-icon name="My Documents" style="grid-column-start: 2; grid-row-start: 1;"></desktop-icon>
-      <desktop-icon name="Photos" style="grid-column-start: 1; grid-row-start: 2;"></desktop-icon>
-      <desktop-icon name="Music" style="grid-column-start: 2; grid-row-start: 2;"></desktop-icon>
-      <desktop-icon name="Videos" style="grid-column-start: 3; grid-row-start: 2;"></desktop-icon>
-    `;
+    const memoryGameIcon = document.createElement('desktop-icon');
+    memoryGameIcon.setAttribute('name', 'Memory Game');
+    memoryGameIcon.setAttribute('icon-src', './assets/images/folder-empty.png');
+    memoryGameIcon.style.gridColumnStart = 1;
+    memoryGameIcon.style.gridRowStart = 1;
+
+    const chatWindowIcon = document.createElement('desktop-icon');
+    chatWindowIcon.setAttribute('name', 'Chat');
+    chatWindowIcon.setAttribute('icon-src', './assets/images/folder-empty.png');
+    chatWindowIcon.style.gridColumnStart = 2;
+    chatWindowIcon.style.gridRowStart = 1;
+
+    grid.appendChild(memoryGameIcon);
+    grid.appendChild(chatWindowIcon);
 
     this.shadowRoot.appendChild(grid);
   }
