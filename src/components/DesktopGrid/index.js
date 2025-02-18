@@ -1,3 +1,5 @@
+const baseDesktopIconsImagePath = './assets/images/desktop-icons';
+
 export default class DesktopGrid extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -19,13 +21,13 @@ export default class DesktopGrid extends HTMLElement {
 
     const memoryGameIcon = document.createElement('desktop-icon');
     memoryGameIcon.setAttribute('name', 'Memory Game');
-    memoryGameIcon.setAttribute('icon-src', './assets/images/folder-empty.png');
+    memoryGameIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/folder-empty.png`);
     memoryGameIcon.style.gridColumnStart = 1;
     memoryGameIcon.style.gridRowStart = 1;
 
     const chatWindowIcon = document.createElement('desktop-icon');
     chatWindowIcon.setAttribute('name', 'Chat');
-    chatWindowIcon.setAttribute('icon-src', './assets/images/folder-empty.png');
+    chatWindowIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/folder-empty.png`);
     chatWindowIcon.style.gridColumnStart = 2;
     chatWindowIcon.style.gridRowStart = 1;
 

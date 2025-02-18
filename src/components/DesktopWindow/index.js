@@ -1,3 +1,5 @@
+const baseIconsImagePath = './assets/icons';
+
 export default class DesktopWindow extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -177,63 +179,63 @@ export default class DesktopWindow extends HTMLElement {
           box-shadow: none !important;
         }
         button[aria-label='Minimize'] {
-          background-image: url('./assets/icons/minimize.svg');
+          background-image: url('${baseIconsImagePath}/minimize.svg');
         }
 
         button[aria-label='Minimize']:hover {
-          background-image: url('./assets/icons/minimize-hover.svg');
+          background-image: url('${baseIconsImagePath}/minimize-hover.svg');
         }
 
         button[aria-label='Minimize']:not(:disabled):active {
-          background-image: url('./assets/icons/minimize-active.svg');
+          background-image: url('${baseIconsImagePath}/minimize-active.svg');
         }
 
         button[aria-label='Maximize'] {
-          background-image: url('./assets/icons/maximize.svg');
+          background-image: url('${baseIconsImagePath}/maximize.svg');
         }
 
         button[aria-label='Maximize']:hover {
-          background-image: url('./assets/icons/maximize-hover.svg');
+          background-image: url('${baseIconsImagePath}/maximize-hover.svg');
         }
 
         button[aria-label='Maximize']:not(:disabled):active {
-          background-image: url('./assets/icons/maximize-active.svg');
+          background-image: url('${baseIconsImagePath}/maximize-active.svg');
         }
 
         button[aria-label='Restore'] {
-          background-image: url('./assets/icons/restore.svg');
+          background-image: url('${baseIconsImagePath}/restore.svg');
         }
 
         button[aria-label='Restore']:hover {
-          background-image: url('./assets/icons/restore-hover.svg');
+          background-image: url('${baseIconsImagePath}/restore-hover.svg');
         }
 
         button[aria-label='Restore']:not(:disabled):active {
-          background-image: url('./assets/icons/restore-active.svg');
+          background-image: url('${baseIconsImagePath}/restore-active.svg');
         }
 
         button[aria-label='Help'] {
-          background-image: url('./assets/icons/help.svg');
+          background-image: url('${baseIconsImagePath}/help.svg');
         }
 
         button[aria-label='Help']:hover {
-          background-image: url('./assets/icons/help-hover.svg');
+          background-image: url('${baseIconsImagePath}/help-hover.svg');
         }
 
         button[aria-label='Help']:not(:disabled):active {
-          background-image: url('./assets/icons/help-active.svg');
+          background-image: url('${baseIconsImagePath}/help-active.svg');
         }
 
         button[aria-label='Close'] {
-          background-image: url('./assets/icons/close.svg');
+          background-image: url('${baseIconsImagePath}/close.svg');
         }
 
         button[aria-label='Close']:hover {
-          background-image: url('./assets/icons/close-hover.svg');
+          background-image: url('${baseIconsImagePath}/close-hover.svg');
         }
 
         button[aria-label='Close']:not(:disabled):active {
-          background-image: url('./assets/icons/close-active.svg');
+          background-image: url('${baseIconsImagePath}/close-active.svg');
         }
       </style>
     `;

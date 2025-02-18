@@ -1,3 +1,5 @@
+const baseDesktopIconsImagePath = './assets/images/desktop-icons';
+
 export default class DesktopIcon extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -11,7 +13,8 @@ export default class DesktopIcon extends HTMLElement {
   render() {
     this.shadowRoot.innerHTML = this.getStyles();
 
-    const iconSrc = this.getAttribute('icon-src') || './assets/images/folder-empty.png';
+    const iconSrc =
+      this.getAttribute('icon-src') || `${baseDesktopIconsImagePath}/folder-empty.png`;
     const name = this.getAttribute('name') || 'New Folder';
     this.name = name;
 

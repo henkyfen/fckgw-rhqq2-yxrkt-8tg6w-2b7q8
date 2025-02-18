@@ -1,3 +1,5 @@
+const baseImagePath = './assets/images';
+
 export default class PersonalWebDesktop extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -126,13 +128,13 @@ export default class PersonalWebDesktop extends HTMLElement {
           @media (min-device-width: 1920px) {
             background-repeat: no-repeat;
             background-size: cover;
-            background-image: url("./assets/bliss_4k.webp");
+            background-image: url("${baseImagePath}/bliss_4k.webp");
           }
 
           @media (max-device-width: 1919px) {
             background-repeat: no-repeat;
             background-size: cover;
-            background-image: url("./assets/bliss_FullHd.webp");
+            background-image: url("${baseImagePath}/bliss_FullHd.webp");
           }
         }
       </style>
