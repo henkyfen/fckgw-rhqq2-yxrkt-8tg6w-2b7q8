@@ -54,14 +54,14 @@ export default class PersonalWebDesktop extends HTMLElement {
   }
 
   handleIconDoubleClick(event) {
-    const { windowTitle } = event.detail;
+    const { windowTitle, windowTag } = event.detail;
 
-    const { id, chatWindow } = this.createWindow(windowTitle);
+    const { id, desktopWindow } = this.createWindow(windowTitle, windowTag);
 
     if (id === null) return;
 
-    this.shadowRoot.appendChild(chatWindow);
-    this.positionWindow(chatWindow);
+    this.shadowRoot.appendChild(desktopWindow);
+    this.positionWindow(desktopWindow);
 
     const customEvent = new CustomEvent('updateTaskbar', {
       detail: { windowTitle, id },
@@ -78,14 +78,16 @@ export default class PersonalWebDesktop extends HTMLElement {
     window.style.display = window.style.display === 'none' ? 'block' : 'none';
   }
 
-  createWindow(windowTitle) {
-    const chatWindow = document.createElement('desktop-window');
-    chatWindow.setAttribute('title', windowTitle);
+  createWindow(windowTitle, tagName) {
+    const desktopWindow = tagName
+      ? document.createElement(tagName)
+      : document.createElement('desktop-window');
+    desktopWindow.setAttribute('title', windowTitle);
     const id = this.generateUniqueId();
-    chatWindow.setAttribute('id', id);
-    this.openedWindows.set(id, chatWindow);
+    desktopWindow.setAttribute('id', id);
+    this.openedWindows.set(id, desktopWindow);
 
-    return { id, chatWindow };
+    return { id, desktopWindow };
   }
 
   generateUniqueId() {

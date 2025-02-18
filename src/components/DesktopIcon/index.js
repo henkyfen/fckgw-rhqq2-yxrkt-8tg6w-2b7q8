@@ -16,7 +16,9 @@ export default class DesktopIcon extends HTMLElement {
     const iconSrc =
       this.getAttribute('icon-src') || `${baseDesktopIconsImagePath}/folder-empty.png`;
     const name = this.getAttribute('name') || 'New Folder';
+    const targetTagName = this.getAttribute('target-tag-name') || 'desktop-window';
     this.name = name;
+    this.targetTagName = targetTagName;
 
     const cell = document.createElement('div');
     cell.classList.add('desktop-icon');
@@ -37,7 +39,7 @@ export default class DesktopIcon extends HTMLElement {
 
   handleDoubleClick() {
     const event = new CustomEvent('iconDoubleClick', {
-      detail: { windowTitle: this.name },
+      detail: { windowTitle: this.name, windowTag: this.targetTagName },
       bubbles: true,
       composed: true,
     });
