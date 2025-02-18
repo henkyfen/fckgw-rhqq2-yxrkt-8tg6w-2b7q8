@@ -58,12 +58,11 @@ export default class DesktopWindow extends HTMLElement {
         <div class="window__title-bar">
           <div class="window__title-bar-text">${title}</div>
           <div class="window__title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Close"></button>
+            <button class="title-bar-button" aria-label="Minimize" />
+            <button class="title-bar-button" aria-label="Close" />
           </div>
         </div>
-        <div class="window__body">
-        </div>
+        <div class="window__body" />
     `;
 
     this.shadowRoot.appendChild(container);
@@ -116,6 +115,50 @@ export default class DesktopWindow extends HTMLElement {
           background: #ece9d8;
         }
 
+        button:not(.title-bar-button) {
+          font-size: 11px;
+          -webkit-font-smoothing: antialiased;
+          box-sizing: border-box;
+          border: 1px solid #003c74;
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(236, 235, 229, 1) 86%,
+            rgba(216, 208, 196, 1) 100%
+          );
+          box-shadow: none;
+          border-radius: 3px;
+          min-width: 75px;
+          min-height: 23px;
+          padding: 0 12px;
+        }
+
+        button:not(.title-bar-button):active {
+          box-shadow: none;
+          background: linear-gradient(
+            180deg,
+            rgba(205, 202, 195, 1) 0%,
+            rgba(227, 227, 219, 1) 8%,
+            rgba(229, 229, 222, 1) 94%,
+            rgba(242, 242, 241, 1) 100%
+          );
+        }
+
+        button:not(.title-bar-button):focus{
+          outline: 1px dotted #000000;
+          outline-offset: -4px;
+          box-shadow: inset -1px 1px #cee7ff, inset 1px 2px #98b8ea, inset -2px 2px #bcd4f6, inset 1px -1px #89ade4,
+            inset 2px -2px #89ade4;
+        }
+
+        button:not(.title-bar-button):hover {
+         box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
+        }
+
+        button:not(.title-bar-button)::-moz-focus-inner {
+          border: 0;
+        }
+
         .window__title-bar {
           user-select: none;
           box-sizing: content-box;
@@ -160,7 +203,7 @@ export default class DesktopWindow extends HTMLElement {
           margin: 8px;
         }
 
-        button {
+        button.title-bar-button {
           min-width: 21px;
           min-height: 21px;
           margin-left: 2px;
@@ -172,69 +215,69 @@ export default class DesktopWindow extends HTMLElement {
           border: none;
         }
 
-        button:active,
-        button:hover,
-        button:focus {
+        button.title-bar-button:active,
+        button.title-bar-button:hover,
+        button.title-bar-button:focus {
           outline: none;
-          box-shadow: none !important;
+          box-shadow: none;
         }
-        button[aria-label='Minimize'] {
+        button.title-bar-button[aria-label='Minimize'] {
           background-image: url('${baseIconsImagePath}/minimize.svg');
         }
 
-        button[aria-label='Minimize']:hover {
+        button.title-bar-button[aria-label='Minimize']:hover {
           background-image: url('${baseIconsImagePath}/minimize-hover.svg');
         }
 
-        button[aria-label='Minimize']:not(:disabled):active {
+        button.title-bar-button[aria-label='Minimize']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/minimize-active.svg');
         }
 
-        button[aria-label='Maximize'] {
+        button.title-bar-button[aria-label='Maximize'] {
           background-image: url('${baseIconsImagePath}/maximize.svg');
         }
 
-        button[aria-label='Maximize']:hover {
+        button.title-bar-button[aria-label='Maximize']:hover {
           background-image: url('${baseIconsImagePath}/maximize-hover.svg');
         }
 
-        button[aria-label='Maximize']:not(:disabled):active {
+        button.title-bar-button[aria-label='Maximize']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/maximize-active.svg');
         }
 
-        button[aria-label='Restore'] {
+        button.title-bar-button[aria-label='Restore'] {
           background-image: url('${baseIconsImagePath}/restore.svg');
         }
 
-        button[aria-label='Restore']:hover {
+        button.title-bar-button[aria-label='Restore']:hover {
           background-image: url('${baseIconsImagePath}/restore-hover.svg');
         }
 
-        button[aria-label='Restore']:not(:disabled):active {
+        button.title-bar-button[aria-label='Restore']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/restore-active.svg');
         }
 
-        button[aria-label='Help'] {
+        button.title-bar-button[aria-label='Help'] {
           background-image: url('${baseIconsImagePath}/help.svg');
         }
 
-        button[aria-label='Help']:hover {
+        button.title-bar-button[aria-label='Help']:hover {
           background-image: url('${baseIconsImagePath}/help-hover.svg');
         }
 
-        button[aria-label='Help']:not(:disabled):active {
+        button.title-bar-button[aria-label='Help']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/help-active.svg');
         }
 
-        button[aria-label='Close'] {
+        button.title-bar-button[aria-label='Close'] {
           background-image: url('${baseIconsImagePath}/close.svg');
         }
 
-        button[aria-label='Close']:hover {
+        button.title-bar-button[aria-label='Close']:hover {
           background-image: url('${baseIconsImagePath}/close-hover.svg');
         }
 
-        button[aria-label='Close']:not(:disabled):active {
+        button.title-bar-button[aria-label='Close']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/close-active.svg');
         }
       </style>
