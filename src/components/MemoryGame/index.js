@@ -157,7 +157,7 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   handleKeydown(event) {
-    if (this.state !== 'game') return;
+    if (!this.isFocused || this.state !== 'game') return;
 
     if (event.key === 'Escape') {
       this.backToMenu();
