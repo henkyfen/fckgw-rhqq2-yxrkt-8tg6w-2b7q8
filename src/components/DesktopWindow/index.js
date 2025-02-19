@@ -5,9 +5,11 @@ export default class DesktopWindow extends HTMLElement {
 
   isDragging = false;
   maxX;
-  maxY;
+  // 32 (taskbar height) + 28 (window title bar height) = 60
+  maxY = window.innerHeight - 60;
   offsetX;
   offsetY;
+  body;
 
   static currentDraggedInstance = null;
   static initializeGlobalListeners() {
@@ -46,8 +48,6 @@ export default class DesktopWindow extends HTMLElement {
   }
 
   render() {
-    // 32 (taskbar height) + 28 (window title bar height) = 60
-    this.maxY = window.innerHeight - 60;
     this.shadowRoot.innerHTML = this.getStyles();
 
     const title = this.getAttribute('title') || 'Untitled Window';
@@ -65,6 +65,7 @@ export default class DesktopWindow extends HTMLElement {
         <div class="window__body" />
     `;
 
+    this.body = container.querySelector('.window__body');
     this.shadowRoot.appendChild(container);
   }
 

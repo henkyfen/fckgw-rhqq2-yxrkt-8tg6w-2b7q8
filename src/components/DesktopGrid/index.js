@@ -21,7 +21,8 @@ export default class DesktopGrid extends HTMLElement {
 
     const memoryGameIcon = document.createElement('desktop-icon');
     memoryGameIcon.setAttribute('name', 'Memory Game');
-    memoryGameIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/folder-empty.png`);
+    memoryGameIcon.setAttribute('target-tag-name', 'memory-game');
+    memoryGameIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/memory-game.png`);
     memoryGameIcon.style.gridColumnStart = 1;
     memoryGameIcon.style.gridRowStart = 1;
 
