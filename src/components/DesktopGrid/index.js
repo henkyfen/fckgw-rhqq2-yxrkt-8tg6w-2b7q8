@@ -91,11 +91,13 @@ export default class DesktopGrid extends HTMLElement {
     const dragImage = element.cloneNode(true);
     dragImage.style.position = 'absolute';
     dragImage.style.top = '-9999px';
+    document.body.appendChild(dragImage);
+
     dragImage.style.pointerEvents = 'none';
+    // Note! shadowRoot is empty before the element is appended to the DOM
     dragImage.shadowRoot.querySelector('.desktop-icon').classList.add('selected');
     dragImage.style.opacity = '0.75';
 
-    document.body.appendChild(dragImage);
     event.dataTransfer.setDragImage(dragImage, 42.5, 20);
     setTimeout(() => document.body.removeChild(dragImage), 0);
   }
