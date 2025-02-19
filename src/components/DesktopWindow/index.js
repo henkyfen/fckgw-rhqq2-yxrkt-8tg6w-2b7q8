@@ -1,16 +1,6 @@
 const baseIconsImagePath = './assets/icons';
 
 export default class DesktopWindow extends HTMLElement {
-  shadowRoot = this.attachShadow({ mode: 'open' });
-
-  isDragging = false;
-  maxX;
-  // 32 (taskbar height) + 28 (window title bar height) = 60
-  maxY = window.innerHeight - 60;
-  offsetX;
-  offsetY;
-  body;
-
   static currentDraggedInstance = null;
   static initializeGlobalListeners() {
     window.addEventListener('mouseout', () => {
@@ -42,7 +32,19 @@ export default class DesktopWindow extends HTMLElement {
     });
   }
 
+  shadowRoot = this.attachShadow({ mode: 'open' });
+
+  isFocused = false;
+  isDragging = false;
+  maxX;
+  // 32 (taskbar height) + 28 (window title bar height) = 60
+  maxY = window.innerHeight - 60;
+  offsetX;
+  offsetY;
+  body;
+
   connectedCallback() {
+    this.dataId = this.getAttribute('data-window-id');
     this.render();
     this.addEventListeners();
   }
@@ -82,7 +84,7 @@ export default class DesktopWindow extends HTMLElement {
 
     this.shadowRoot.querySelector('button[aria-label="Close"]').addEventListener('click', () => {
       const closeEvent = new CustomEvent('closeWindow', {
-        detail: { id: this.id },
+        detail: { id: this.dataId },
         bubbles: true,
         composed: true,
       });
@@ -92,6 +94,13 @@ export default class DesktopWindow extends HTMLElement {
     this.shadowRoot.querySelector('button[aria-label="Minimize"]').addEventListener('click', () => {
       this.style.display = 'none';
     });
+
+    window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
+  }
+
+  handleFocusChange(event) {
+    const focusedWindowId = event.detail.focusedWindowId;
+    this.isFocused = this.getAttribute('data-window-id') === focusedWindowId;
   }
 
   getStyles() {

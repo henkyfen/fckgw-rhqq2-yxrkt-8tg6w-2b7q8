@@ -47,17 +47,18 @@ export default class DesktopTaskbar extends HTMLElement {
     const newTab = document.createElement('div');
     newTab.classList.add('open-tab');
     newTab.textContent = event.detail.windowTitle;
-    newTab.setAttribute('data-id', event.detail.id);
+    newTab.setAttribute('data-window-id', event.detail.windowId);
     newTab.addEventListener('click', this.handleTabClick.bind(this));
-    this.openedTabs.set(event.detail.id, newTab);
+    this.openedTabs.set(event.detail.windowId, newTab);
 
     taskbar.appendChild(newTab);
   }
 
   handleTabClick(event) {
-    const id = event.target.getAttribute('data-id');
+    const windowId = event.target.getAttribute('data-window-id');
+
     const clickTab = new CustomEvent('clickTab', {
-      detail: { id },
+      detail: { windowId },
       bubbles: true,
       composed: true,
     });
@@ -88,7 +89,7 @@ export default class DesktopTaskbar extends HTMLElement {
       }
 
       :host {
-        z-index: 100;
+        z-index: 99999;
       }
 
       .taskbar {

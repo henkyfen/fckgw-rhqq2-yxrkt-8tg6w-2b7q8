@@ -6,6 +6,8 @@ export default class PersonalWebDesktop extends HTMLElement {
   lastOpenedX = 30;
   lastOpenedY = 30;
   openedWindows = new Map();
+  currentlyFocusedWindow;
+  highestZIndex = 1;
   taskbar;
 
   connectedCallback() {
@@ -33,6 +35,18 @@ export default class PersonalWebDesktop extends HTMLElement {
     this.shadowRoot.addEventListener('iconDoubleClick', this.handleIconDoubleClick.bind(this));
     this.shadowRoot.addEventListener('clickTab', this.handleClickTab.bind(this));
     this.shadowRoot.addEventListener('closeWindow', this.handleWindowClose.bind(this));
+    this.shadowRoot.addEventListener('mousedown', this.handleWindowClick.bind(this));
+  }
+
+  handleWindowClick(event) {
+    const windowId = event.target.getAttribute('data-window-id');
+
+    if (!windowId) return;
+
+    const targetWindow = this.openedWindows.get(windowId);
+    if (this.currentlyFocusedWindow !== targetWindow) {
+      this.bringWindowToFront(targetWindow);
+    }
   }
 
   handleWindowClose(event) {
@@ -56,15 +70,15 @@ export default class PersonalWebDesktop extends HTMLElement {
   handleIconDoubleClick(event) {
     const { windowTitle, windowTag } = event.detail;
 
-    const { id, desktopWindow } = this.createWindow(windowTitle, windowTag);
+    const { windowId, desktopWindow } = this.createWindow(windowTitle, windowTag);
 
-    if (id === null) return;
+    if (windowId === null) return;
 
     this.shadowRoot.appendChild(desktopWindow);
     this.positionWindow(desktopWindow);
 
     const customEvent = new CustomEvent('updateTaskbar', {
-      detail: { windowTitle, id },
+      detail: { windowTitle, windowId },
       bubbles: false,
       composed: true,
     });
@@ -73,9 +87,12 @@ export default class PersonalWebDesktop extends HTMLElement {
   }
 
   handleClickTab(event) {
-    const { id } = event.detail;
-    const window = this.openedWindows.get(id);
-    window.style.display = window.style.display === 'none' ? 'block' : 'none';
+    const { windowId } = event.detail;
+    const desktopWindow = this.openedWindows.get(windowId);
+    desktopWindow.style.display = desktopWindow.style.display === 'none' ? 'block' : 'none';
+    if (desktopWindow.style.display === 'block' && this.currentlyFocusedWindow !== desktopWindow) {
+      this.bringWindowToFront(desktopWindow);
+    }
   }
 
   createWindow(windowTitle, tagName) {
@@ -83,11 +100,12 @@ export default class PersonalWebDesktop extends HTMLElement {
       ? document.createElement(tagName)
       : document.createElement('desktop-window');
     desktopWindow.setAttribute('title', windowTitle);
-    const id = this.generateUniqueId();
-    desktopWindow.setAttribute('id', id);
-    this.openedWindows.set(id, desktopWindow);
+    const windowId = this.generateUniqueId();
+    desktopWindow.setAttribute('data-window-id', windowId);
+    this.bringWindowToFront(desktopWindow);
+    this.openedWindows.set(windowId, desktopWindow);
 
-    return { id, desktopWindow };
+    return { windowId, desktopWindow };
   }
 
   generateUniqueId() {
@@ -113,6 +131,17 @@ export default class PersonalWebDesktop extends HTMLElement {
       element.style.left = `${this.lastOpenedX}px`;
       element.style.top = `${this.lastOpenedY}px`;
     }, 0);
+  }
+
+  bringWindowToFront(desktopWindow) {
+    this.currentlyFocusedWindow = desktopWindow;
+    this.highestZIndex += 1;
+    desktopWindow.style.zIndex = this.highestZIndex;
+
+    const focusEvent = new CustomEvent('windowFocusChange', {
+      detail: { focusedWindowId: desktopWindow.getAttribute('data-window-id') },
+    });
+    window.dispatchEvent(focusEvent);
   }
 
   getStyles() {
