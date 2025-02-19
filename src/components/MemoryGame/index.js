@@ -24,14 +24,12 @@ export default class MemoryGame extends DesktopWindow {
 
   renderBody(state) {
     if (state === 'menu') {
+      this.boardData = this.getEmptyBoardData();
+      this.attempts = 0;
       const menu = this.createMenu();
       this.body.replaceChildren(menu);
     } else if (state === 'game') {
-      const tileObjectList = this.generateTileData(
-        this.boardData.rowCount,
-        this.boardData.columnCount,
-      );
-      this.boardData.tileObjectList = tileObjectList;
+      this.generateBoardData();
       const board = this.createGameBoard(this.boardData);
       this.body.replaceChildren(board);
     } else if (state === 'over') {
@@ -45,6 +43,7 @@ export default class MemoryGame extends DesktopWindow {
   addEventListeners() {
     super.addEventListeners();
     this.body.addEventListener('click', this.handleClick.bind(this));
+    window.addEventListener('keydown', this.handleKeydown.bind(this));
   }
 
   createMenu() {
@@ -63,6 +62,13 @@ export default class MemoryGame extends DesktopWindow {
     return menu;
   }
 
+  generateBoardData() {
+    const keyMapping = this.getKeyMapping(this.boardData.rowCount, this.boardData.columnCount);
+    this.boardData.keyMapping = keyMapping;
+    const tiles = this.generateTileData(this.boardData.rowCount, this.boardData.columnCount);
+    this.boardData.tileObjectList = tiles;
+  }
+
   generateTileData(rowCount, columnCount) {
     const totalTiles = rowCount * columnCount;
     const tilesHTML = [];
@@ -71,7 +77,11 @@ export default class MemoryGame extends DesktopWindow {
       tileElement.classList.add('tile');
       tileElement.setAttribute('data-id', i);
       tileElement.setAttribute('data-action', 'tile');
+
+      const keyHint = this.getKeyHint(i);
       const hiddenTileImageTag = this.generateHiddenTileImageTag();
+
+      tileElement.appendChild(keyHint);
       tileElement.appendChild(hiddenTileImageTag);
       tilesHTML.push(tileElement);
     }
@@ -116,6 +126,54 @@ export default class MemoryGame extends DesktopWindow {
     });
 
     return boardElement;
+  }
+
+  getKeyMapping(rowCount, columnCount) {
+    const keyMapping = {};
+    const keys =
+      rowCount < 4
+        ? [
+            ['q', 'w', 'e', 'r'],
+            ['a', 's', 'd', 'f'],
+            ['z', 'x', 'c', 'v'],
+          ]
+        : [
+            ['1', '2', '3', '4'],
+            ['q', 'w', 'e', 'r'],
+            ['a', 's', 'd', 'f'],
+            ['z', 'x', 'c', 'v'],
+          ];
+
+    let index = 0;
+    for (let row = 0; row < rowCount; row++) {
+      for (let col = 0; col < columnCount; col++) {
+        if (keys[row] && keys[row][col]) {
+          keyMapping[keys[row][col]] = index;
+        }
+        index++;
+      }
+    }
+    return keyMapping;
+  }
+
+  handleKeydown(event) {
+    if (this.state !== 'game') return;
+
+    if (event.key === 'Escape') {
+      this.backToMenu();
+    }
+
+    const key = event.key.toLowerCase();
+    const keyMapping = this.boardData.keyMapping;
+
+    if (keyMapping[key] !== undefined) {
+      const tileIndex = keyMapping[key];
+      const tileObject = this.boardData.tileObjectList[tileIndex];
+
+      if (tileObject.isFlipped || tileObject.isMatched) return;
+
+      this.handleTileClick({ target: tileObject.tileTag });
+    }
   }
 
   handleClick(event) {
@@ -179,8 +237,17 @@ export default class MemoryGame extends DesktopWindow {
         flippedTile1.isFlipped = false;
         flippedTile2.isFlipped = false;
 
-        flippedTile1.tileTag.replaceChildren(this.generateHiddenTileImageTag());
-        flippedTile2.tileTag.replaceChildren(this.generateHiddenTileImageTag());
+        const tileId1 = Number(flippedTile1.tileTag.getAttribute('data-id'));
+        const tileId2 = Number(flippedTile2.tileTag.getAttribute('data-id'));
+
+        const keyHint1 = this.getKeyHint(tileId1);
+        const keyHint2 = this.getKeyHint(tileId2);
+
+        const hiddenImageTag1 = this.generateHiddenTileImageTag();
+        const hiddenImageTag2 = this.generateHiddenTileImageTag();
+
+        flippedTile1.tileTag.replaceChildren(keyHint1, hiddenImageTag1);
+        flippedTile2.tileTag.replaceChildren(keyHint2, hiddenImageTag2);
       }, 400);
     }
 
@@ -233,9 +300,17 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   backToMenu() {
-    this.boardData = this.getEmptyBoardData();
-    this.attempts = 0;
     this.state = 'menu';
+  }
+
+  getKeyHint(tileId) {
+    const keyHint = document.createElement('span');
+    keyHint.classList.add('tile__key-hint');
+    const entry = Object.entries(this.boardData.keyMapping).find(
+      ([key, value]) => value === tileId,
+    );
+    keyHint.textContent = entry ? entry[0] : '';
+    return keyHint;
   }
 
   generateHiddenTileImageTag() {
@@ -284,6 +359,7 @@ export default class MemoryGame extends DesktopWindow {
         }
 
         .tile {
+          position: relative;
           background-color: #ccc;
           display: flex;
           align-items: center;
@@ -296,6 +372,14 @@ export default class MemoryGame extends DesktopWindow {
         .tile img {
           max-width: 100%;
           max-height: 100%;
+        }
+
+        .tile__key-hint {
+          position: absolute;
+          bottom: 10%;
+          left: 50%;
+          transform: translateX(-50%);
+          pointer-events: none;
         }
       </style>`
     );
