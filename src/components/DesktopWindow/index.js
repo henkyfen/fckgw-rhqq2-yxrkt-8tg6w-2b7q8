@@ -1,37 +1,41 @@
 const baseIconsImagePath = './assets/icons';
 
-export default class DesktopWindow extends HTMLElement {
-  static currentDraggedInstance = null;
-  static initializeGlobalListeners() {
-    window.addEventListener('mouseout', () => {
-      const instance = DesktopWindow.currentDraggedInstance;
-      if (instance) {
-        instance.isDragging = false;
-      }
-    });
+const DragManager = {
+  currentlyDraggedInstance: null,
+};
 
-    document.addEventListener('mousemove', (e) => {
-      const instance = DesktopWindow.currentDraggedInstance;
+window.addEventListener('mouseout', handleMouseOut);
+window.addEventListener('mousemove', handleMouseMove);
+window.addEventListener('mouseup', handleMouseUp);
 
-      if (instance && instance.isDragging) {
-        // -1 to prevent window from slight shrinking and resulting title bar text wrapping
-        const newX = Math.min(Math.max(0, e.clientX - instance.offsetX), instance.maxX - 1);
-        const newY = Math.min(Math.max(0, e.clientY - instance.offsetY), instance.maxY);
-
-        instance.style.left = `${newX}px`;
-        instance.style.top = `${newY}px`;
-      }
-    });
-
-    window.addEventListener('mouseup', () => {
-      const instance = DesktopWindow.currentDraggedInstance;
-      if (instance) {
-        this.isDragging = false;
-        DesktopWindow.currentDraggedInstance = null;
-      }
-    });
+function handleMouseOut() {
+  const instance = DragManager.currentlyDraggedInstance;
+  if (instance) {
+    instance.isDragging = false;
   }
+}
 
+function handleMouseMove(event) {
+  const instance = DragManager.currentlyDraggedInstance;
+
+  if (instance && instance.isDragging) {
+    const newX = Math.min(Math.max(0, event.clientX - instance.offsetX), instance.maxX - 1);
+    const newY = Math.min(Math.max(0, event.clientY - instance.offsetY), instance.maxY);
+
+    instance.style.left = `${newX}px`;
+    instance.style.top = `${newY}px`;
+  }
+}
+
+function handleMouseUp() {
+  const instance = DragManager.currentlyDraggedInstance;
+  if (instance) {
+    instance.isDragging = false;
+    DragManager.currentlyDraggedInstance = null;
+  }
+}
+
+export default class DesktopWindow extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
   isFocused = false;
@@ -72,30 +76,39 @@ export default class DesktopWindow extends HTMLElement {
   }
 
   addEventListeners() {
-    this.shadowRoot.querySelector('.window__title-bar').addEventListener('mousedown', (e) => {
-      if (e.target.tagName !== 'BUTTON') {
-        this.isDragging = true;
-        this.offsetX = e.clientX - this.offsetLeft;
-        this.offsetY = e.clientY - this.offsetTop;
-        this.maxX = window.innerWidth - this.offsetWidth;
-        DesktopWindow.currentDraggedInstance = this;
-      }
-    });
-
-    this.shadowRoot.querySelector('button[aria-label="Close"]').addEventListener('click', () => {
-      const closeEvent = new CustomEvent('closeWindow', {
-        detail: { id: this.dataId },
-        bubbles: true,
-        composed: true,
-      });
-      this.dispatchEvent(closeEvent);
-    });
-
-    this.shadowRoot.querySelector('button[aria-label="Minimize"]').addEventListener('click', () => {
-      this.style.display = 'none';
-    });
-
+    this.shadowRoot
+      .querySelector('.window__title-bar')
+      .addEventListener('mousedown', this.handleMouseDown.bind(this));
+    this.shadowRoot
+      .querySelector('button[aria-label="Close"]')
+      .addEventListener('click', this.handleCloseClick.bind(this));
+    this.shadowRoot
+      .querySelector('button[aria-label="Minimize"]')
+      .addEventListener('click', this.handleMinimizeClick.bind(this));
     window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
+  }
+
+  handleMouseDown(event) {
+    if (event.target.tagName !== 'BUTTON') {
+      this.isDragging = true;
+      this.offsetX = event.clientX - this.offsetLeft;
+      this.offsetY = event.clientY - this.offsetTop;
+      this.maxX = window.innerWidth - this.offsetWidth;
+      DragManager.currentlyDraggedInstance = this;
+    }
+  }
+
+  handleCloseClick() {
+    const closeEvent = new CustomEvent('closeWindow', {
+      detail: { id: this.dataId },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(closeEvent);
+  }
+
+  handleMinimizeClick() {
+    this.style.display = 'none';
   }
 
   handleFocusChange(event) {
@@ -294,7 +307,5 @@ export default class DesktopWindow extends HTMLElement {
     `;
   }
 }
-
-DesktopWindow.initializeGlobalListeners();
 
 customElements.define('desktop-window', DesktopWindow);
