@@ -34,6 +34,9 @@ export default class MemoryGame extends DesktopWindow {
       this.boardData.tileObjectList = tileObjectList;
       const board = this.createGameBoard(this.boardData);
       this.body.replaceChildren(board);
+    } else if (state === 'over') {
+      const gameOverWindow = this.createGameOverWindow();
+      this.body.replaceChildren(gameOverWindow);
     } else {
       throw new Error('Invalid state');
     }
@@ -125,6 +128,12 @@ export default class MemoryGame extends DesktopWindow {
       case 'menu':
         this.handleMenuButtonClick(event);
         break;
+      case 'restart':
+        this.restartGame();
+        break;
+      case 'backToMenu':
+        this.backToMenu();
+        break;
     }
   }
 
@@ -160,6 +169,10 @@ export default class MemoryGame extends DesktopWindow {
       flippedTile1.isMatched = true;
       flippedTile2.isMatched = true;
       this.boardData.matchedTilesCount++;
+
+      if (this.allTilesMatched()) {
+        this.state = 'over';
+      }
     } else {
       this.attempts++;
       setTimeout(() => {
@@ -172,6 +185,57 @@ export default class MemoryGame extends DesktopWindow {
     }
 
     this.boardData.currentlyFlippedTiles = [];
+  }
+
+  allTilesMatched() {
+    return this.boardData.matchedTilesCount >= this.boardData.tileObjectList.length / 2;
+  }
+
+  createGameOverWindow() {
+    const window = document.createElement('div');
+
+    const message = document.createElement('p');
+    message.textContent = `Congrats! It took you ${this.attempts} attempts to win.`;
+    message.style.margin = '1rem';
+
+    const controlPanel = document.createElement('div');
+    controlPanel.style.margin = '1rem';
+    controlPanel.style.display = 'flex';
+    controlPanel.style.justifyContent = 'center';
+    controlPanel.style.gap = '1rem';
+
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.setAttribute('data-action', 'restart');
+
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Back to Menu';
+    closeButton.setAttribute('data-action', 'backToMenu');
+
+    window.appendChild(message);
+    window.appendChild(controlPanel);
+    controlPanel.appendChild(restartButton);
+    controlPanel.appendChild(closeButton);
+
+    return window;
+  }
+
+  restartGame() {
+    const rowCount = this.boardData.rowCount;
+    const columnCount = this.boardData.columnCount;
+
+    this.boardData = this.getEmptyBoardData();
+    this.boardData.rowCount = rowCount;
+    this.boardData.columnCount = columnCount;
+
+    this.attempts = 0;
+    this.state = 'game';
+  }
+
+  backToMenu() {
+    this.boardData = this.getEmptyBoardData();
+    this.attempts = 0;
+    this.state = 'menu';
   }
 
   generateHiddenTileImageTag() {
@@ -210,6 +274,28 @@ export default class MemoryGame extends DesktopWindow {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
+        }
+
+        .board {
+          width: 100%;
+          height: 100%;
+          display: grid;
+          gap: 5px;
+        }
+
+        .tile {
+          background-color: #ccc;
+          display: flex;
+          align-items: center;
+          width: 80px;
+          height: 80px;
+          justify-content: center;
+          cursor: pointer;
+        }
+        
+        .tile img {
+          max-width: 100%;
+          max-height: 100%;
         }
       </style>`
     );
