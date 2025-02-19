@@ -75,6 +75,7 @@ export default class PersonalWebDesktop extends HTMLElement {
     if (windowId === null) return;
 
     this.shadowRoot.appendChild(desktopWindow);
+    this.bringWindowToFront(desktopWindow);
     this.positionWindow(desktopWindow);
 
     const customEvent = new CustomEvent('updateTaskbar', {
@@ -102,7 +103,6 @@ export default class PersonalWebDesktop extends HTMLElement {
     desktopWindow.setAttribute('title', windowTitle);
     const windowId = this.generateUniqueId();
     desktopWindow.setAttribute('data-window-id', windowId);
-    this.bringWindowToFront(desktopWindow);
     this.openedWindows.set(windowId, desktopWindow);
 
     return { windowId, desktopWindow };
