@@ -4,6 +4,7 @@ const baseGameImagePath = './assets/images/memory-game';
 
 export default class MemoryGame extends DesktopWindow {
   _state;
+  timerInterval;
   boardData = this.getEmptyBoardData();
 
   attempts = 0;
@@ -33,6 +34,8 @@ export default class MemoryGame extends DesktopWindow {
       const board = this.createGameBoard(this.boardData);
       this.body.replaceChildren(board);
     } else if (state === 'over') {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
       const gameOverWindow = this.createGameOverWindow();
       this.body.replaceChildren(gameOverWindow);
     } else {
@@ -115,7 +118,38 @@ export default class MemoryGame extends DesktopWindow {
     return images.sort(() => Math.random() - 0.5);
   }
 
+  startTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+
+    this.updateTimerDisplay();
+    this.timerInterval = setInterval(() => {
+      this.timeLeft = (this.timeLeft - 0.1).toFixed(1);
+      this.updateTimerDisplay();
+
+      if (this.timeLeft <= 0) {
+        clearInterval(this.timerInterval);
+      }
+    }, 100);
+  }
+
+  updateTimerDisplay() {
+    const timerElement = this.shadowRoot.getElementById('timer');
+    if (timerElement) {
+      timerElement.textContent = `${this.timeLeft}s`;
+      timerElement.style.color =
+        this.timeLeft <= 3 ? 'red' : this.timeLeft <= 5 ? 'orange' : 'green';
+    }
+  }
+
   createGameBoard(boardData) {
+    this.timeLeft = this.boardData.rowCount * this.boardData.columnCount * 2;
+    const timer = document.createElement('div');
+    timer.classList.add('timer');
+    timer.id = 'timer';
+    timer.textContent = `${this.timeLeft}s`;
+
     const boardElement = document.createElement('div');
     boardElement.classList.add('board');
     boardElement.style.gridTemplateColumns = `repeat(${boardData.columnCount}, 1fr)`;
@@ -125,7 +159,13 @@ export default class MemoryGame extends DesktopWindow {
       boardElement.appendChild(tile.tileTag);
     });
 
-    return boardElement;
+    const container = document.createElement('div');
+    container.classList.add('game-container');
+
+    container.appendChild(timer);
+    container.appendChild(boardElement);
+
+    return container;
   }
 
   getKeyMapping(rowCount, columnCount) {
@@ -204,6 +244,10 @@ export default class MemoryGame extends DesktopWindow {
 
   handleTileClick({ target }) {
     if (target.classList.contains('tile')) {
+      if (this.timerInterval === undefined) {
+        this.startTimer();
+      }
+
       const tileIndex = parseInt(target.getAttribute('data-id'));
       const tileObject = this.boardData.tileObjectList[tileIndex];
 
@@ -324,6 +368,8 @@ export default class MemoryGame extends DesktopWindow {
     return {
       rowCount: 0,
       columnCount: 0,
+      keyMapping: {},
+      timeLeft: 0,
       tileObjectList: [],
       currentlyFlippedTiles: [],
       matchedTilesCount: 0,
@@ -349,6 +395,18 @@ export default class MemoryGame extends DesktopWindow {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
+        }
+
+        .game-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .timer {
+          padding: 0.5rem;
+          font-size: 1.25rem;
         }
 
         .board {
