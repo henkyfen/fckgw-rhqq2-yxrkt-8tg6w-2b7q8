@@ -55,24 +55,72 @@ export default class DesktopWindow extends HTMLElement {
 
   render() {
     this.shadowRoot.innerHTML = this.getStyles();
+    const container = this.createWindowContainer();
+    this.body = this.createWindowBody();
 
-    const title = this.getAttribute('title') || 'Untitled Window';
+    const controlPanel = this.createControlPanel();
+    if (controlPanel) {
+      container.appendChild(controlPanel);
+    }
+    container.appendChild(this.body);
 
+    this.shadowRoot.appendChild(container);
+  }
+
+  createWindowContainer() {
     const container = document.createElement('div');
     container.classList.add('window');
     container.innerHTML = `
-        <div class="window__title-bar">
-          <div class="window__title-bar-text">${title}</div>
-          <div class="window__title-bar-controls">
-            <button class="title-bar-button" aria-label="Minimize" />
-            <button class="title-bar-button" aria-label="Close" />
-          </div>
+      <div class="window__title-bar">
+        <div class="window__title-bar-text">${this.getWindowTitle()}</div>
+        <div class="window__title-bar-controls">
+          <button class="title-bar-button" aria-label="Minimize"></button>
+          <button class="title-bar-button" aria-label="Close"></button>
         </div>
-        <div class="window__body" />
+      </div>
     `;
+    return container;
+  }
 
-    this.body = container.querySelector('.window__body');
-    this.shadowRoot.appendChild(container);
+  createWindowBody() {
+    const body = document.createElement('div');
+    body.classList.add('window__body');
+    return body;
+  }
+
+  getWindowTitle() {
+    return this.getAttribute('title') || 'Untitled Window';
+  }
+
+  createControlPanel() {
+    /*
+     * This method must be implemented in a subclass.
+     * Here's an example implementation:
+     *
+     * const controlPanel = document.createElement('div');
+     * controlPanel.classList.add('window__control-panel');
+     *
+     * controlPanel.innerHTML = `
+     *   <div class="window__dropdown">
+     *     <div class="window__dropdown-activator">File</div>
+     *     <div class="window__dropdown-content">
+     *       <div class="window__dropdown-choice">New</div>
+     *       <div class="window__dropdown-choice">Open</div>
+     *       <div class="window__dropdown-choice">Save</div>
+     *     </div>
+     *   </div>
+     *   <div class="window__dropdown">
+     *     <div class="window__dropdown-activator">Edit</div>
+     *     <div class="window__dropdown-content">
+     *       <div class="window__dropdown-choice">Cut</div>
+     *       <div class="window__dropdown-choice">Copy</div>
+     *       <div class="window__dropdown-choice">Paste</div>
+     *     </div>
+     *   </div>
+     * `;
+     *
+     * return controlPanel;
+     */
   }
 
   addEventListeners() {
@@ -86,6 +134,45 @@ export default class DesktopWindow extends HTMLElement {
       .querySelector('button[aria-label="Minimize"]')
       .addEventListener('click', this.handleMinimizeClick.bind(this));
     window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
+    this.shadowRoot.addEventListener('click', this.handleControlPanelClick.bind(this));
+  }
+
+  handleControlPanelClick(event) {
+    const target = event.target;
+    const isActivator = target.classList.contains('window__dropdown-activator');
+    const isChoice = target.classList.contains('window__dropdown-choice');
+    const isContent = target.classList.contains('window__dropdown-content');
+
+    if (isActivator) {
+      this.toggleDropdown(target);
+    } else if (isChoice) {
+      this.closeDropdown(target.parentNode);
+    } else if (!isContent) {
+      this.closeAllDropdowns();
+    }
+  }
+
+  toggleDropdown(activator) {
+    const content = activator.parentNode.querySelector('.window__dropdown-content');
+    const isContentVisible = content.style.display === 'block';
+    this.closeAllDropdowns(content);
+    content.style.display = isContentVisible ? 'none' : 'block';
+    activator.parentNode.classList.toggle('active', !isContentVisible);
+  }
+
+  closeDropdown(dropdownContent) {
+    dropdownContent.style.display = 'none';
+    dropdownContent.parentNode.classList.remove('active');
+  }
+
+  closeAllDropdowns(excludeContent = null) {
+    const allDropdownContents = this.shadowRoot.querySelectorAll('.window__dropdown-content');
+    allDropdownContents.forEach((dropdownContent) => {
+      if (dropdownContent !== excludeContent) {
+        dropdownContent.style.display = 'none';
+        dropdownContent.parentNode.classList.remove('active');
+      }
+    });
   }
 
   handleMouseDown(event) {
@@ -136,7 +223,6 @@ export default class DesktopWindow extends HTMLElement {
           padding: 0 0 3px 0;
           -webkit-font-smoothing: antialiased;
           background: #ece9d8;
-          overflow: hidden;
         }
 
         button:not(.title-bar-button) {
@@ -223,8 +309,60 @@ export default class DesktopWindow extends HTMLElement {
           display: flex;
         }
 
+        .window__control-panel {
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: flex-start;
+          border-bottom: 1px solid #ccc;
+          margin: 0 3px;
+        }
+
+        .window__dropdown {
+          position: relative;
+          cursor: default;
+          margin: 0;
+          user-select: none;
+        }
+          
+        .window__dropdown-activator {
+          padding: 0.25rem 0.5rem;
+        }
+
+        .window__dropdown-activator:not(.disabled):hover {
+          background-color: #c8ddf3;
+        }
+
+        .window__dropdown-content {
+          display: none;
+          position: absolute;
+          left: 0;
+          top: 100%;
+          background: #ece9d8;
+          border: 1px solid #ccc;
+          min-width: 33px;
+          z-index: 2;
+        }
+
+        .window__dropdown-choice {
+          max-width: 128px;
+          padding: 0.25rem 0.5rem;
+          white-space: normal;
+          word-wrap: break-word;
+        }
+
+        .window__dropdown-choice:not(.disabled):hover {
+          background-color: #c8ddf3;
+        }
+
+        .window__dropdown-activator.disabled,
+        .window__dropdown-choice.disabled {
+          pointer-events: none;
+          color: #aaa
+        }
+
         .window__body {
-          margin: 8px;
+          overflow: hidden;
+          padding: 8px;
         }
 
         button.title-bar-button {
