@@ -12,6 +12,10 @@ export default class ChatApp extends DesktopWindow {
 
   set state(value) {
     this._state = value;
+    if (this.socket) {
+      this.socket.close();
+      this.socket = null;
+    }
     this.messageListElement = null;
     this.inputFieldElement = null;
     this.renderBody(value);
