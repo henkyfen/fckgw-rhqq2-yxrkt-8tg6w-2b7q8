@@ -152,7 +152,7 @@ export default class DesktopWindow extends HTMLElement {
           );
           box-shadow: none;
           border-radius: 3px;
-          min-width: 75px;
+          min-width: 23px;
           min-height: 23px;
           padding: 0 12px;
         }

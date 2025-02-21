@@ -397,6 +397,10 @@ export default class MemoryGame extends DesktopWindow {
           gap: 10px;
         }
 
+        .menu__control-panel button {
+          width: 75px;
+        }
+
         .game-container {
           display: flex;
           flex-direction: column;
