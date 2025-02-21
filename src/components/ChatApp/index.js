@@ -46,7 +46,7 @@ export default class ChatApp extends DesktopWindow {
 
   connectedCallback() {
     super.connectedCallback();
-    this.state = 'menu';
+    this.state = 'username-choice';
   }
 
   disconnectedCallback() {
@@ -57,12 +57,14 @@ export default class ChatApp extends DesktopWindow {
     this.body.style.width = '250px';
     this.body.style.height = '400px';
 
-    if (state === 'menu') {
+    if (state === 'username-choice') {
       if (this.username) {
-        this.state = 'chat';
+        this.state = 'channel-choice';
         return;
       }
-      this.body.replaceChildren(this.createMenu());
+      this.body.replaceChildren(this.createUsernameChoiceMenu());
+    } else if (state === 'channel-choice') {
+      this.body.replaceChildren(this.createChannelChoiceMenu());
     } else if (state === 'chat') {
       const { messageListElement, inputFieldElement, chat } = this.createChat();
       this.messageListElement = messageListElement;
@@ -87,6 +89,9 @@ export default class ChatApp extends DesktopWindow {
       case 'auth-form':
         this.handleAuthFormSubmit(form);
         break;
+      case 'channel-form':
+        this.handleChannelChoiceFormSubmit(form);
+        break;
       case 'message-form':
         this.handleMessageFormSubmit(form);
         break;
@@ -101,6 +106,15 @@ export default class ChatApp extends DesktopWindow {
     const rememberMe = formData.get('remember-me');
     if (username) {
       this.username = { username, rememberMe: !!rememberMe };
+      this.state = 'channel-choice';
+    }
+  }
+
+  handleChannelChoiceFormSubmit(form) {
+    const formData = new FormData(form);
+    const channel = formData.get('channel');
+    if (channel) {
+      this.channel = channel;
       this.state = 'chat';
     }
   }
@@ -155,7 +169,7 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  createMenu() {
+  createUsernameChoiceMenu() {
     const menu = document.createElement('div');
     menu.classList.add('container', 'menu');
 
@@ -174,6 +188,24 @@ export default class ChatApp extends DesktopWindow {
     `;
 
     menu.appendChild(authForm);
+    return menu;
+  }
+
+  createChannelChoiceMenu() {
+    const menu = document.createElement('div');
+    menu.classList.add('container', 'menu');
+
+    const channelChoiceForm = document.createElement('form');
+    channelChoiceForm.id = 'channel-form';
+    channelChoiceForm.classList.add('form');
+    channelChoiceForm.innerHTML = `
+      <img src="${baseChatImagePath}/logo.webp" alt="Messenger Logo" />
+      <label for="channel">Enter channel name</label>
+      <input type="text" name="channel" placeholder="default_channel" value="default_channel" required />
+      <button type="submit">Connect</button>
+    `;
+
+    menu.appendChild(channelChoiceForm);
     return menu;
   }
 
