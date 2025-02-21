@@ -43,6 +43,8 @@ export default class ChatApp extends DesktopWindow {
   channel = 'default_channel';
   messageListElement;
   inputFieldElement;
+  changeChannelButton;
+  controlPanel;
 
   connectedCallback() {
     super.connectedCallback();
@@ -53,19 +55,42 @@ export default class ChatApp extends DesktopWindow {
     this.socket && this.socket.close();
   }
 
+  createControlPanel() {
+    const controlPanel = document.createElement('div');
+    controlPanel.classList.add('window__control-panel');
+
+    controlPanel.innerHTML = `
+      <div class="window__dropdown">
+        <div class="window__dropdown-activator">Settings</div>
+        <div class="window__dropdown-content">
+          <div data-action="change-username" class="window__dropdown-choice" style="white-space: nowrap;">Change Username</div>
+          <div data-action="change-channel" class="window__dropdown-choice" style="white-space: nowrap;">Change Channel</div>
+        </div>
+      </div>
+    `;
+
+    this.controlPanel = controlPanel;
+    this.changeChannelButton = controlPanel.querySelector('[data-action="change-channel"]');
+
+    return controlPanel;
+  }
+
   renderBody(state) {
     this.body.style.width = '250px';
     this.body.style.height = '400px';
 
     if (state === 'username-choice') {
+      this.changeChannelButton.classList.add('disabled');
       if (this.username) {
         this.state = 'channel-choice';
         return;
       }
       this.body.replaceChildren(this.createUsernameChoiceMenu());
     } else if (state === 'channel-choice') {
+      this.changeChannelButton.classList.add('disabled');
       this.body.replaceChildren(this.createChannelChoiceMenu());
     } else if (state === 'chat') {
+      this.changeChannelButton.classList.remove('disabled');
       const { messageListElement, inputFieldElement, chat } = this.createChat();
       this.messageListElement = messageListElement;
       this.inputFieldElement = inputFieldElement;
@@ -78,7 +103,22 @@ export default class ChatApp extends DesktopWindow {
 
   addEventListeners() {
     super.addEventListeners();
+    this.controlPanel.addEventListener('click', this.handleClick.bind(this));
     this.body.addEventListener('submit', this.handleSubmit.bind(this));
+  }
+
+  handleClick(event) {
+    const action = event.target.getAttribute('data-action');
+
+    switch (action) {
+      case 'change-username':
+        this.username = null;
+        this.state = 'username-choice';
+        break;
+      case 'change-channel':
+        this.state = 'channel-choice';
+        break;
+    }
   }
 
   handleSubmit(event) {
