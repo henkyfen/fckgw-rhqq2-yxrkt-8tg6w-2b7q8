@@ -22,8 +22,16 @@ export default class ChatApp extends DesktopWindow {
   }
 
   set username(value) {
-    this._username = value;
-    localStorage.setItem('username', value);
+    if (value === null || value === undefined) {
+      this._username = null;
+      localStorage.removeItem('username');
+    } else {
+      const { username, rememberMe } = value;
+      this._username = username;
+      if (rememberMe) {
+        localStorage.setItem('username', username);
+      }
+    }
   }
 
   socket;
@@ -86,8 +94,9 @@ export default class ChatApp extends DesktopWindow {
   handleAuthFormSubmit(form) {
     const formData = new FormData(form);
     const username = formData.get('username');
+    const rememberMe = formData.get('remember-me');
     if (username) {
-      this.username = username;
+      this.username = { username, rememberMe: !!rememberMe };
       this.state = 'chat';
     }
   }
@@ -148,12 +157,16 @@ export default class ChatApp extends DesktopWindow {
 
     const authForm = document.createElement('form');
     authForm.id = 'auth-form';
-    authForm.classList.add('auth');
+    authForm.classList.add('form');
     authForm.innerHTML = `
       <img src="${baseChatImagePath}/logo.webp" alt="Messenger Logo" />
-      <label for="username">Enter your username</label>
-      <input type="text" name="username" placeholder="Username" required />
-      <button type="submit">Sign in</button>
+      <label class="form__hint" for="username">Enter your username</label>
+      <input class="form__input" type="text" name="username" placeholder="Username" required />
+      <div class="form__checkbox">
+        <input type="checkbox" id="remember-me" name="remember-me" />
+        <label for="remember-me">Remember me</label>
+      </div>
+      <button class="form__button" type="submit">Sign in</button>
     `;
 
     menu.appendChild(authForm);
@@ -255,7 +268,7 @@ export default class ChatApp extends DesktopWindow {
         align-items: stretch;
       }
 
-      .auth {
+      .form {
         display: flex;
         flex-flow: column nowrap;
         align-items: center;
@@ -264,15 +277,7 @@ export default class ChatApp extends DesktopWindow {
         margin-bottom: 12rem;
       }
 
-      .auth label {
-        font-size: 1rem;
-      }
-
-      .auth button {
-        width: 100%;
-      }
-
-      .auth img {
+      .form img {
         user-select: none;
         pointer-events: none;
         position: absolute;
@@ -282,6 +287,25 @@ export default class ChatApp extends DesktopWindow {
         margin-bottom: 2rem;
         opacity: 0.4;
         z-index: -1;
+      }
+
+      .form__hint {
+        font-size: 1rem;
+      }
+
+      .form__button {
+        width: 100%;
+      }
+
+      .form__checkbox {
+        width: 100%;
+        display: flex;
+        flex-flow: row nowrap;
+        font-size: 0.8rem;
+      }
+
+      .form__checkbox input {
+        margin-left: 0;
       }
 
       .messages {
