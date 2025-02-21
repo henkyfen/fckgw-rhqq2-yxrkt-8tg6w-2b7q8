@@ -27,8 +27,9 @@ export default class DesktopGrid extends HTMLElement {
     memoryGameIcon.style.gridRowStart = 1;
 
     const chatWindowIcon = document.createElement('desktop-icon');
-    chatWindowIcon.setAttribute('name', 'Chat');
-    chatWindowIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/folder-empty.png`);
+    chatWindowIcon.setAttribute('name', 'Messenger');
+    chatWindowIcon.setAttribute('target-tag-name', 'chat-app');
+    chatWindowIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/messenger.png`);
     chatWindowIcon.style.gridColumnStart = 2;
     chatWindowIcon.style.gridRowStart = 1;
 

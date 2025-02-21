@@ -136,6 +136,7 @@ export default class DesktopWindow extends HTMLElement {
           padding: 0 0 3px 0;
           -webkit-font-smoothing: antialiased;
           background: #ece9d8;
+          overflow: hidden;
         }
 
         button:not(.title-bar-button) {
