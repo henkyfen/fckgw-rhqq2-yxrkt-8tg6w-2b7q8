@@ -108,7 +108,7 @@ export default class ChatApp extends DesktopWindow {
   }
 
   handleClick(event) {
-    const action = event.target.getAttribute('data-action');
+    const action = event.target.dataset.action;
 
     switch (action) {
       case 'change-username':

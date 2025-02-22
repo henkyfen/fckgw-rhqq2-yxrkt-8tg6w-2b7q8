@@ -47,7 +47,7 @@ export default class DesktopTaskbar extends HTMLElement {
     const newTab = document.createElement('div');
     newTab.classList.add('open-tab');
     newTab.textContent = event.detail.windowTitle;
-    newTab.setAttribute('data-window-id', event.detail.windowId);
+    newTab.dataset.windowId = event.detail.windowId;
     newTab.addEventListener('click', this.handleTabClick.bind(this));
     this.openedTabs.set(event.detail.windowId, newTab);
 
@@ -55,7 +55,7 @@ export default class DesktopTaskbar extends HTMLElement {
   }
 
   handleTabClick(event) {
-    const windowId = event.target.getAttribute('data-window-id');
+    const windowId = event.target.dataset.windowId;
 
     const clickTab = new CustomEvent('clickTab', {
       detail: { windowId },

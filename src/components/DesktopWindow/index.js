@@ -48,7 +48,7 @@ export default class DesktopWindow extends HTMLElement {
   body;
 
   connectedCallback() {
-    this.dataId = this.getAttribute('data-window-id');
+    this.dataId = this.dataset.windowId;
     this.render();
     this.addEventListeners();
   }
@@ -200,7 +200,7 @@ export default class DesktopWindow extends HTMLElement {
 
   handleFocusChange(event) {
     const focusedWindowId = event.detail.focusedWindowId;
-    this.isFocused = this.getAttribute('data-window-id') === focusedWindowId;
+    this.isFocused = this.dataset.windowId === focusedWindowId;
   }
 
   getStyles() {
@@ -243,7 +243,7 @@ export default class DesktopWindow extends HTMLElement {
           padding: 0 12px;
         }
 
-        button:not(.title-bar-button):active {
+        button:not(.title-bar-button):not(:disabled):active {
           box-shadow: none;
           background: linear-gradient(
             180deg,
@@ -254,14 +254,14 @@ export default class DesktopWindow extends HTMLElement {
           );
         }
 
-        button:not(.title-bar-button):focus{
+        button:not(.title-bar-button):not(:disabled):focus{
           outline: 1px dotted #000000;
           outline-offset: -4px;
           box-shadow: inset -1px 1px #cee7ff, inset 1px 2px #98b8ea, inset -2px 2px #bcd4f6, inset 1px -1px #89ade4,
             inset 2px -2px #89ade4;
         }
 
-        button:not(.title-bar-button):hover {
+        button:not(.title-bar-button):not(:disabled):hover {
          box-shadow: inset -1px 1px #fff0cf, inset 1px 2px #fdd889, inset -2px 2px #fbc761, inset 2px -2px #e5a01a;
         }
 
@@ -329,7 +329,7 @@ export default class DesktopWindow extends HTMLElement {
         }
 
         .window__dropdown-activator:not(.disabled):hover {
-          background-color: #c8ddf3;
+          background-color: #d6dff7;
         }
 
         .window__dropdown-content {
@@ -351,7 +351,7 @@ export default class DesktopWindow extends HTMLElement {
         }
 
         .window__dropdown-choice:not(.disabled):hover {
-          background-color: #c8ddf3;
+          background-color: #d6dff7;
         }
 
         .window__dropdown-activator.disabled,

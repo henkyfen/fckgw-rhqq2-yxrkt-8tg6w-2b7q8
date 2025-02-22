@@ -78,8 +78,8 @@ export default class MemoryGame extends DesktopWindow {
     for (let i = 0; i < totalTiles; i++) {
       const tileElement = document.createElement('div');
       tileElement.classList.add('tile');
-      tileElement.setAttribute('data-id', i);
-      tileElement.setAttribute('data-action', 'tile');
+      tileElement.dataset.id = i;
+      tileElement.dataset.action = 'tile';
 
       const keyHint = this.getKeyHint(i);
       const hiddenTileImageTag = this.generateHiddenTileImageTag();
@@ -217,7 +217,7 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   handleClick(event) {
-    const action = event.target.getAttribute('data-action');
+    const action = event.target.dataset.action;
 
     switch (action) {
       case 'tile':
@@ -236,7 +236,7 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   handleMenuButtonClick({ target }) {
-    const dataSize = target.getAttribute('data-size');
+    const dataSize = target.dataset.size;
     this.boardData.columnCount = parseInt(dataSize.split('x')[0]);
     this.boardData.rowCount = parseInt(dataSize.split('x')[1]);
     this.state = 'game';
@@ -248,7 +248,7 @@ export default class MemoryGame extends DesktopWindow {
         this.startTimer();
       }
 
-      const tileIndex = parseInt(target.getAttribute('data-id'));
+      const tileIndex = parseInt(target.dataset.id);
       const tileObject = this.boardData.tileObjectList[tileIndex];
 
       if (tileObject.isFlipped || tileObject.isMatched) return;
@@ -281,8 +281,8 @@ export default class MemoryGame extends DesktopWindow {
         flippedTile1.isFlipped = false;
         flippedTile2.isFlipped = false;
 
-        const tileId1 = Number(flippedTile1.tileTag.getAttribute('data-id'));
-        const tileId2 = Number(flippedTile2.tileTag.getAttribute('data-id'));
+        const tileId1 = Number(flippedTile1.tileTag.dataset.id);
+        const tileId2 = Number(flippedTile2.tileTag.dataset.id);
 
         const keyHint1 = this.getKeyHint(tileId1);
         const keyHint2 = this.getKeyHint(tileId2);
@@ -317,11 +317,11 @@ export default class MemoryGame extends DesktopWindow {
 
     const restartButton = document.createElement('button');
     restartButton.textContent = 'Restart Game';
-    restartButton.setAttribute('data-action', 'restart');
+    restartButton.dataset.action = 'restart';
 
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Back to Menu';
-    closeButton.setAttribute('data-action', 'backToMenu');
+    closeButton.dataset.action = 'backToMenu';
 
     window.appendChild(message);
     window.appendChild(controlPanel);

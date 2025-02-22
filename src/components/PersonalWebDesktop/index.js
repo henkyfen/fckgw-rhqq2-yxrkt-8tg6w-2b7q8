@@ -39,7 +39,7 @@ export default class PersonalWebDesktop extends HTMLElement {
   }
 
   handleWindowClick(event) {
-    const windowId = event.target.getAttribute('data-window-id');
+    const windowId = event.target.dataset.windowId;
 
     if (!windowId) return;
 
@@ -102,7 +102,7 @@ export default class PersonalWebDesktop extends HTMLElement {
       : document.createElement('desktop-window');
     desktopWindow.setAttribute('title', windowTitle);
     const windowId = this.generateUniqueId();
-    desktopWindow.setAttribute('data-window-id', windowId);
+    desktopWindow.dataset.windowId = windowId;
     this.openedWindows.set(windowId, desktopWindow);
 
     return { windowId, desktopWindow };
@@ -139,7 +139,7 @@ export default class PersonalWebDesktop extends HTMLElement {
     desktopWindow.style.zIndex = this.highestZIndex;
 
     const focusEvent = new CustomEvent('windowFocusChange', {
-      detail: { focusedWindowId: desktopWindow.getAttribute('data-window-id') },
+      detail: { focusedWindowId: desktopWindow.dataset.windowId },
     });
     window.dispatchEvent(focusEvent);
   }
