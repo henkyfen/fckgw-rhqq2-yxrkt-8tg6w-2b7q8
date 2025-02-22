@@ -12,10 +12,7 @@ export default class ChatApp extends DesktopWindow {
 
   set state(value) {
     this._state = value;
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
-    }
+    this.closeConnection();
     this.messageListElement = null;
     this.inputFieldElement = null;
     this.renderBody(value);
@@ -41,8 +38,8 @@ export default class ChatApp extends DesktopWindow {
   socket;
   apiKey = 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd';
   channel = 'default_channel';
+  messages = [];
   messageListElement;
-  inputFieldElement;
   changeChannelButton;
   controlPanel;
 
@@ -52,7 +49,7 @@ export default class ChatApp extends DesktopWindow {
   }
 
   disconnectedCallback() {
-    this.socket && this.socket.close();
+    this.closeConnection();
   }
 
   createControlPanel() {
@@ -91,9 +88,8 @@ export default class ChatApp extends DesktopWindow {
       this.body.replaceChildren(this.createChannelChoiceMenu());
     } else if (state === 'chat') {
       this.changeChannelButton.classList.remove('disabled');
-      const { messageListElement, inputFieldElement, chat } = this.createChat();
+      const { messageListElement, chat } = this.createChat();
       this.messageListElement = messageListElement;
-      this.inputFieldElement = inputFieldElement;
       this.body.replaceChildren(chat);
       this.connect();
     } else {
@@ -164,7 +160,9 @@ export default class ChatApp extends DesktopWindow {
     const message = formData.get('message');
     if (message) {
       this.sendMessage(message);
-      this.inputFieldElement.value = '';
+      const inputField = form.querySelector('.input-field');
+      inputField.value = '';
+      inputField.dispatchEvent(new Event('input'));
     }
   }
 
@@ -250,12 +248,33 @@ export default class ChatApp extends DesktopWindow {
   }
 
   createChat() {
+    const chat = this.createChatContainer();
+    const messageListElement = this.createMessageList();
+    const inputFormElement = this.createInputForm();
+
+    chat.appendChild(messageListElement);
+    chat.appendChild(inputFormElement);
+
+    return {
+      messageListElement,
+      inputFormElement,
+      chat,
+    };
+  }
+
+  createChatContainer() {
     const chat = document.createElement('div');
     chat.classList.add('container', 'chat');
+    return chat;
+  }
 
+  createMessageList() {
     const messageListElement = document.createElement('div');
     messageListElement.classList.add('messages');
+    return messageListElement;
+  }
 
+  createInputForm() {
     const inputFormElement = document.createElement('form');
     inputFormElement.id = 'message-form';
     inputFormElement.classList.add('input-form');
@@ -264,37 +283,49 @@ export default class ChatApp extends DesktopWindow {
     inputFieldElement.classList.add('input-field');
     inputFieldElement.name = 'message';
     inputFieldElement.required = true;
-    inputFormElement.appendChild(inputFieldElement);
 
     const sendButton = document.createElement('button');
     sendButton.type = 'submit';
     sendButton.classList.add('send-btn');
     sendButton.innerHTML = '<u>S</u>end';
+    sendButton.disabled = true;
+
+    inputFormElement.appendChild(inputFieldElement);
     inputFormElement.appendChild(sendButton);
 
-    inputFieldElement.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
+    inputFieldElement.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
         inputFormElement.requestSubmit();
       }
     });
 
-    chat.appendChild(messageListElement);
-    chat.appendChild(inputFormElement);
+    inputFieldElement.addEventListener('input', () => {
+      sendButton.disabled = !inputFieldElement.value.trim();
+    });
 
-    return { messageListElement, inputFieldElement, chat };
+    return inputFormElement;
   }
 
   connect() {
     this.socket = new WebSocket('wss://courselab.lnu.se/message-app/socket');
-    this.socket.addEventListener('open', this.handleOpen);
+    this.socket.addEventListener('open', this.handleOpen.bind(this));
     this.socket.addEventListener('message', this.handleMessage.bind(this));
     this.socket.addEventListener('error', this.handleError);
     this.socket.addEventListener('close', this.handleClose.bind(this));
+    window.addEventListener('beforeunload', this.closeConnection.bind(this));
   }
 
   handleOpen() {
     console.log('Connection with the server established.');
+    const storedMessages = JSON.parse(localStorage.getItem(this.channel));
+    if (storedMessages) {
+      storedMessages.forEach((message) => {
+        this.messages.push(message);
+        const messageElement = this.createMessageElement(message);
+        this.messageListElement.appendChild(messageElement);
+      });
+    }
   }
 
   scrollToBottom() {
@@ -304,6 +335,8 @@ export default class ChatApp extends DesktopWindow {
   handleMessage(event) {
     const message = JSON.parse(event.data);
     if (message.type !== 'heartbeat') {
+      this.messages.push(message);
+      localStorage.setItem(this.channel, JSON.stringify(this.messages));
       const messageElement = this.createMessageElement(message);
       this.messageListElement.appendChild(messageElement);
       this.scrollToBottom();
@@ -312,11 +345,28 @@ export default class ChatApp extends DesktopWindow {
 
   handleClose() {
     console.log('Connection closed.');
+    this.messages.push({
+      data: 'You are disconnected!',
+      type: 'notification',
+      username: 'The Server',
+    });
+    localStorage.setItem(this.channel, JSON.stringify(this.messages));
+    this.messages = [];
     this.socket = null;
   }
 
   handleError(error) {
     console.error('Connection error:', error);
+  }
+
+  closeConnection(event) {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      if (event) {
+        event.preventDefault();
+      }
+      this.socket.close();
+      this.socket = null;
+    }
   }
 
   getStyles() {
