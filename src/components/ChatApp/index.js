@@ -250,9 +250,11 @@ export default class ChatApp extends DesktopWindow {
   createChat() {
     const chat = this.createChatContainer();
     const messageListElement = this.createMessageList();
+    const emojiPickerElement = this.createEmojiPicker();
     const inputFormElement = this.createInputForm();
 
     chat.appendChild(messageListElement);
+    chat.appendChild(emojiPickerElement);
     chat.appendChild(inputFormElement);
 
     return {
@@ -272,6 +274,29 @@ export default class ChatApp extends DesktopWindow {
     const messageListElement = document.createElement('div');
     messageListElement.classList.add('messages');
     return messageListElement;
+  }
+
+  createEmojiPicker() {
+    const emojiPicker = document.createElement('div');
+    emojiPicker.classList.add('emoji-picker');
+
+    const emojis = ['😀', '😂', '😍', '😎', '😭', '😡'];
+    emojis.forEach((emoji, index) => {
+      const emojiButton = document.createElement('div');
+      emojiButton.textContent = emoji;
+      emojiButton.classList.add('emoji-picker__button');
+      emojiButton.dataset.id = index;
+      emojiPicker.appendChild(emojiButton);
+    });
+
+    emojiPicker.addEventListener('click', ({ target }) => {
+      if (!target.classList.contains('emoji-picker__button')) return;
+      const inputField = this.body.querySelector('.input-field');
+      inputField.value += emojis[target.dataset.id];
+      inputField.dispatchEvent(new Event('input'));
+    });
+
+    return emojiPicker;
   }
 
   createInputForm() {
@@ -454,6 +479,25 @@ export default class ChatApp extends DesktopWindow {
         margin-left: 1rem;
       }
 
+      .emoji-picker {
+        box-sizing: border-box;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-around;
+        align-items: center;
+        height: 32px;
+        padding: 4px;
+        background: #d6dff7;
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+        font-size: 1rem;
+      }
+
+      .emoji-picker__button {
+        user-select: none;
+        cursor: pointer;
+      }
+
       .input-form {
         flex: 0 0;
       }
@@ -465,7 +509,9 @@ export default class ChatApp extends DesktopWindow {
         resize: none;
         padding-right: 64px;
         border: 1px solid #ccc;
-        border-radius: 0.25rem;
+        border-top: none;
+        border-bottom-left-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
         vertical-align: middle;
         overflow-y: scroll;
         scrollbar-width: none;
