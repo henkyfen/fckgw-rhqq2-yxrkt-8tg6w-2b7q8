@@ -15,12 +15,35 @@ export default class MemoryGame extends DesktopWindow {
 
   set state(value) {
     this._state = value;
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
+    }
     this.renderBody(value);
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.state = 'menu';
+  }
+
+  createControlPanel() {
+    const controlPanel = document.createElement('div');
+    controlPanel.classList.add('window__control-panel');
+
+    controlPanel.innerHTML = `
+      <div class="window__dropdown">
+        <div class="window__dropdown-activator">Settings</div>
+        <div class="window__dropdown-content">
+          <div data-action="backToMenu" class="window__dropdown-choice" style="white-space: nowrap;">Back to Menu</div>
+        </div>
+      </div>
+    `;
+
+    this.controlPanel = controlPanel;
+    this.changeChannelButton = controlPanel.querySelector('[data-action="change-channel"]');
+
+    return controlPanel;
   }
 
   renderBody(state) {
@@ -34,8 +57,6 @@ export default class MemoryGame extends DesktopWindow {
       const board = this.createGameBoard(this.boardData);
       this.body.replaceChildren(board);
     } else if (state === 'over') {
-      clearInterval(this.timerInterval);
-      this.timerInterval = undefined;
       const gameOverWindow = this.createGameOverWindow();
       this.body.replaceChildren(gameOverWindow);
     } else {
@@ -45,7 +66,7 @@ export default class MemoryGame extends DesktopWindow {
 
   addEventListeners() {
     super.addEventListeners();
-    this.body.addEventListener('click', this.handleClick.bind(this));
+    this.shadowRoot.addEventListener('click', this.handleClick.bind(this));
     window.addEventListener('keydown', this.handleKeydown.bind(this));
   }
 
@@ -119,10 +140,6 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   startTimer() {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-    }
-
     this.updateTimerDisplay();
     this.timerInterval = setInterval(() => {
       this.timeLeft = (this.timeLeft - 0.1).toFixed(1);
