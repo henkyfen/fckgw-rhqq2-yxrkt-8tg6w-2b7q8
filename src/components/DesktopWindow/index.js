@@ -442,6 +442,160 @@ export default class DesktopWindow extends HTMLElement {
         button.title-bar-button[aria-label='Close']:not(:disabled):active {
           background-image: url('${baseIconsImagePath}/close-active.svg');
         }
+
+        label {
+          font-size: 11px;
+          display: inline-flex;
+          align-items: center;
+          -webkit-font-smoothing: antialiased;
+        }
+  
+        input {
+          font-size: 11px;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        textarea {
+          font-size: 11px;
+          padding: 3px 4px;
+          border: none;
+          background-color: #fff;
+          box-sizing: border-box;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+          border-radius: 0;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        textarea:focus,
+        input:focus-visible {
+          outline: none;
+        }
+
+        input[type="radio"] {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          margin: 0;
+          background: 0;
+          position: fixed;
+          opacity: 0;
+          border: none;
+        }
+
+        input[type="radio"] + label {
+          line-height: 16px;
+          position: relative;
+          margin-left: 18px;
+        }
+
+        input[type="radio"] + label::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -18px;
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          margin-right: 6px;
+          background: linear-gradient(135deg, rgba(220, 220, 215, 1) 0%, rgba(255, 255, 255, 1) 100%);
+          border: 1px solid #1d5281;
+          border-radius: 50%;
+        }
+
+        input[type="radio"]:not([disabled]):not(:active) + label:hover::before {
+          box-shadow: inset -2px -2px #f8b636, inset 2px 2px #fedf9c;
+        }
+
+        input[type="radio"]:active + label::before {
+          background: linear-gradient(135deg, rgba(176, 176, 167, 1) 0%, rgba(227, 225, 210, 1) 100%);
+        }
+
+        input[type="radio"]:checked + label::after {
+          content: "";
+          display: block;
+          width: 5px;
+          height: 5px;
+          top: 4px;
+          left: -14px;
+          position: absolute;
+          background: url('${baseIconsImagePath}/radio-dot.svg');
+        }
+
+        input[type="radio"]:focus + label {
+          outline: 1px dotted #000;
+        }
+
+        input[type="radio"][disabled] + label::before {
+          background: white;
+          border: 1px solid #cac8bb;
+        }
+
+        input[type="radio"][disabled]:checked + label::after {
+          background: url('${baseIconsImagePath}/radio-dot-disabled.svg');
+        }
+
+        input[type="checkbox"] {
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          margin: 0;
+          background: 0;
+          position: fixed;
+          opacity: 0;
+          border: none;
+        }
+
+        input[type="checkbox"] + label {
+          line-height: 13px;
+          position: relative;
+          margin-left: 19px;
+        }
+
+        input[type="checkbox"] + label::before {
+          content: "";
+          position: absolute;
+          left: -19px;
+          display: inline-block;
+          width: 13px;
+          height: 13px;
+          margin-right: 6px;
+          border: 1px solid #1d5281;
+          background: linear-gradient(135deg, rgba(220, 220, 215, 1) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        input[type="checkbox"]:focus + label {
+          outline: 1px dotted #000;
+        }
+
+        input[type="checkbox"]:active + label::before {
+          linear-gradient(135deg, rgba(176, 176, 167, 1) 0%, rgba(227, 225, 210, 1) 100%);
+        }
+
+        input[type="checkbox"]:checked + label::after {
+          content: "";
+          display: block;
+          width: 11px;
+          height: 11px;
+          position: absolute;
+          background: url('${baseIconsImagePath}/checkmark.svg');
+          top: 1px;
+          left: -17px;
+        }
+
+        input[type="checkbox"]:not([disabled]):not(:active) + label:hover::before {
+          box-shadow: inset -2px -2px #f8b636, inset 2px 2px #fedf9c;
+        }
+
+        input[type="checkbox"][disabled] + label::before {
+          background: white;
+          border: 1px solid #cac8bb;
+        }
+
+        input[type="checkbox"][disabled]:checked + label::after {
+          background: url('${baseIconsImagePath}/checkmark-disabled.svg');
+        }
       </style>
     `;
   }

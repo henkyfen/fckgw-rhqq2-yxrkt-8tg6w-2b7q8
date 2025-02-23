@@ -503,12 +503,10 @@ export default class ChatApp extends DesktopWindow {
       }
 
       .input-field {
-        box-sizing: border-box;
         width: 100%;
-        height: 5em;
+        height: 6em;
         resize: none;
         padding-right: 64px;
-        border: 1px solid #ccc;
         border-top: none;
         border-bottom-left-radius: 0.25rem;
         border-bottom-right-radius: 0.25rem;
@@ -524,7 +522,6 @@ export default class ChatApp extends DesktopWindow {
 
       .input-field:focus-visible {
         outline: none;
-        border: 1px solid #ccc;
       }
 
       .send-btn {
