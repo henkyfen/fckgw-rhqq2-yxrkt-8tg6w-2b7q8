@@ -56,8 +56,8 @@ export default class MemoryGame extends DesktopWindow {
       this.generateBoardData();
       const board = this.createGameBoard(this.boardData);
       this.body.replaceChildren(board);
-    } else if (state === 'over') {
-      const gameOverWindow = this.createGameOverWindow();
+    } else if (state === 'win' || state === 'fail') {
+      const gameOverWindow = this.createGameOverWindow(state);
       this.body.replaceChildren(gameOverWindow);
     } else {
       throw new Error('Invalid state');
@@ -146,7 +146,7 @@ export default class MemoryGame extends DesktopWindow {
       this.updateTimerDisplay();
 
       if (this.timeLeft <= 0) {
-        clearInterval(this.timerInterval);
+        this.state = 'fail';
       }
     }, 100);
   }
@@ -290,7 +290,7 @@ export default class MemoryGame extends DesktopWindow {
       this.boardData.matchedTilesCount++;
 
       if (this.allTilesMatched()) {
-        this.state = 'over';
+        this.state = 'win';
       }
     } else {
       this.attempts++;
@@ -319,12 +319,19 @@ export default class MemoryGame extends DesktopWindow {
     return this.boardData.matchedTilesCount >= this.boardData.tileObjectList.length / 2;
   }
 
-  createGameOverWindow() {
+  createGameOverWindow(state) {
     const window = document.createElement('div');
 
-    const message = document.createElement('p');
-    message.textContent = `Congrats! It took you ${this.attempts} attempts to win.`;
-    message.style.margin = '1rem';
+    const messageElement = document.createElement('p');
+    switch (state) {
+      case 'win':
+        messageElement.textContent = `Congrats! It took you ${this.attempts} attempts to win.`;
+        break;
+      case 'fail':
+        messageElement.textContent = 'Game Over! You ran out of time. Wanna try again?';
+        break;
+    }
+    messageElement.style.margin = '1rem';
 
     const controlPanel = document.createElement('div');
     controlPanel.style.margin = '1rem';
@@ -340,7 +347,7 @@ export default class MemoryGame extends DesktopWindow {
     closeButton.textContent = 'Back to Menu';
     closeButton.dataset.action = 'backToMenu';
 
-    window.appendChild(message);
+    window.appendChild(messageElement);
     window.appendChild(controlPanel);
     controlPanel.appendChild(restartButton);
     controlPanel.appendChild(closeButton);
