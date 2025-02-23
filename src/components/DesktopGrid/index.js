@@ -26,15 +26,23 @@ export default class DesktopGrid extends HTMLElement {
     memoryGameIcon.style.gridColumnStart = 1;
     memoryGameIcon.style.gridRowStart = 1;
 
-    const chatWindowIcon = document.createElement('desktop-icon');
-    chatWindowIcon.setAttribute('name', 'Messenger');
-    chatWindowIcon.setAttribute('target-tag-name', 'chat-app');
-    chatWindowIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/messenger.png`);
-    chatWindowIcon.style.gridColumnStart = 2;
-    chatWindowIcon.style.gridRowStart = 1;
+    const chatAppIcon = document.createElement('desktop-icon');
+    chatAppIcon.setAttribute('name', 'Messenger');
+    chatAppIcon.setAttribute('target-tag-name', 'chat-app');
+    chatAppIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/messenger.png`);
+    chatAppIcon.style.gridColumnStart = 2;
+    chatAppIcon.style.gridRowStart = 1;
+
+    const quizAppIcon = document.createElement('desktop-icon');
+    quizAppIcon.setAttribute('name', 'Quiz App');
+    quizAppIcon.setAttribute('target-tag-name', 'quiz-app');
+    quizAppIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/quiz-app.png`);
+    quizAppIcon.style.gridColumnStart = 3;
+    quizAppIcon.style.gridRowStart = 1;
 
     grid.appendChild(memoryGameIcon);
-    grid.appendChild(chatWindowIcon);
+    grid.appendChild(chatAppIcon);
+    grid.appendChild(quizAppIcon);
 
     this.shadowRoot.appendChild(grid);
   }

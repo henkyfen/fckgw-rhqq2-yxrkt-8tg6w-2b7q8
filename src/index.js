@@ -6,3 +6,4 @@ import './components/DesktopWindow';
 import './components/DesktopIcon';
 import './components/MemoryGame';
 import './components/ChatApp';
+import './components/QuizApp';
