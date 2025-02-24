@@ -117,7 +117,6 @@ export default class QuizMenu extends HTMLElement {
           text-align: center;
           font-size: 1.75rem;
           font-weight: 500;
-          color: #424242;
         }
 
         .menu__control-panel {

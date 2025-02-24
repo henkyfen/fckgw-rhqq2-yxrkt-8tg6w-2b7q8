@@ -5,6 +5,7 @@ const baseGameImagePath = './assets/images/memory-game';
 export default class MemoryGame extends DesktopWindow {
   _state;
   timerInterval;
+  _username = localStorage.getItem('memory-game-username') || null;
   boardData = this.getEmptyBoardData();
 
   attempts = 0;
@@ -22,9 +23,26 @@ export default class MemoryGame extends DesktopWindow {
     this.renderBody(value);
   }
 
+  get username() {
+    return this._username || localStorage.getItem('memory-game-username') || null;
+  }
+
+  set username(value) {
+    if (value === null || value === undefined) {
+      this._username = null;
+      localStorage.removeItem('memory-game-username');
+    } else {
+      const { username, rememberMe } = value;
+      this._username = username;
+      if (rememberMe) {
+        localStorage.setItem('memory-game-username', username);
+      }
+    }
+  }
+
   connectedCallback() {
     super.connectedCallback();
-    this.state = 'menu';
+    this.state = 'username-choice';
   }
 
   createControlPanel() {
@@ -35,32 +53,46 @@ export default class MemoryGame extends DesktopWindow {
       <div class="window__dropdown">
         <div class="window__dropdown-activator">Settings</div>
         <div class="window__dropdown-content">
+          <div data-action="change-username" class="window__dropdown-choice" style="white-space: nowrap;">Change Username</div>
+          <div data-action="change-board" class="window__dropdown-choice" style="white-space: nowrap;">Change Board Size</div>
           <div data-action="backToMenu" class="window__dropdown-choice" style="white-space: nowrap;">Back to Menu</div>
         </div>
       </div>
     `;
 
     this.controlPanel = controlPanel;
-    this.changeChannelButton = controlPanel.querySelector('[data-action="change-channel"]');
+    this.changeBoardSizeButton = controlPanel.querySelector('[data-action="change-board"]');
 
     return controlPanel;
   }
 
   renderBody(state) {
-    if (state === 'menu') {
-      this.boardData = this.getEmptyBoardData();
-      this.attempts = 0;
-      const menu = this.createMenu();
-      this.body.replaceChildren(menu);
-    } else if (state === 'game') {
-      this.generateBoardData();
-      const board = this.createGameBoard(this.boardData);
-      this.body.replaceChildren(board);
-    } else if (state === 'win' || state === 'fail') {
-      const gameOverWindow = this.createGameOverWindow(state);
-      this.body.replaceChildren(gameOverWindow);
-    } else {
-      throw new Error('Invalid state');
+    this.changeBoardSizeButton.classList.remove('disabled');
+    switch (state) {
+      case 'username-choice':
+        this.changeBoardSizeButton.classList.add('disabled');
+        if (this.username) {
+          this.state = 'board-choice';
+          return;
+        }
+        this.body.replaceChildren(this.createUsernameChoiceMenu());
+        break;
+      case 'board-choice':
+        this.changeBoardSizeButton.classList.add('disabled');
+        this.boardData = this.getEmptyBoardData();
+        this.attempts = 0;
+        this.body.replaceChildren(this.createBoardChoiceMenu());
+        break;
+      case 'game':
+        this.generateBoardData();
+        this.body.replaceChildren(this.createGameBoard(this.boardData));
+        break;
+      case 'win':
+      case 'fail':
+        this.body.replaceChildren(this.createGameOverWindow(state));
+        break;
+      default:
+        throw new Error('Invalid state');
     }
   }
 
@@ -68,9 +100,39 @@ export default class MemoryGame extends DesktopWindow {
     super.addEventListeners();
     this.shadowRoot.addEventListener('click', this.handleClick.bind(this));
     window.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.body.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
-  createMenu() {
+  handleSubmit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const username = formData.get('username');
+    const rememberMe = formData.get('remember-me');
+
+    if (username) {
+      this.username = { username, rememberMe: !!rememberMe };
+      this.state = 'board-choice';
+    }
+  }
+
+  createUsernameChoiceMenu() {
+    const menu = document.createElement('form');
+    menu.classList.add('auth');
+    menu.innerHTML = `
+      <h2 class="auth__title">Welcome to Memory Game!</h2>
+      <input class="auth__input" type="text" name="username" placeholder="Enter your name" required />
+      <div class="auth__checkbox">
+        <input type="checkbox" id="remember-me" name="remember-me" />
+        <label for="remember-me">Remember me</label>
+      </div>
+      <button class="auth__button" type="submit">Sign in</button>
+    `;
+
+    return menu;
+  }
+
+  createBoardChoiceMenu() {
     const menu = document.createElement('div');
     menu.classList.add('menu');
     menu.innerHTML = `
@@ -217,7 +279,7 @@ export default class MemoryGame extends DesktopWindow {
     if (!this.isFocused || this.state !== 'game') return;
 
     if (event.key === 'Escape') {
-      this.backToMenu();
+      this.state = 'board-choice';
     }
 
     const key = event.key.toLowerCase();
@@ -246,8 +308,12 @@ export default class MemoryGame extends DesktopWindow {
       case 'restart':
         this.restartGame();
         break;
-      case 'backToMenu':
-        this.backToMenu();
+      case 'change-username':
+        this.username = null;
+        this.state = 'username-choice';
+        break;
+      case 'change-board':
+        this.state = 'board-choice';
         break;
     }
   }
@@ -346,7 +412,7 @@ export default class MemoryGame extends DesktopWindow {
     const closeButton = document.createElement('button');
     closeButton.classList.add('game-over__button');
     closeButton.textContent = 'Back to Menu';
-    closeButton.dataset.action = 'backToMenu';
+    closeButton.dataset.action = 'change-board';
 
     gameOverWindow.appendChild(messageElement);
     gameOverWindow.appendChild(controlPanel);
@@ -366,10 +432,6 @@ export default class MemoryGame extends DesktopWindow {
 
     this.attempts = 0;
     this.state = 'game';
-  }
-
-  backToMenu() {
-    this.state = 'menu';
   }
 
   getKeyHint(tileId) {
@@ -406,6 +468,49 @@ export default class MemoryGame extends DesktopWindow {
       super.getStyles() +
       `
       <style>
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        .auth {
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 2rem;
+        }
+
+        .auth > * {
+          width: 100%;
+        }
+
+        .auth__title {
+          text-align: center;
+          font-size: 1.75rem;
+          font-weight: 500;
+        }
+
+        .auth__input {
+          padding: 4px;
+        }
+
+        .auth__checkbox {
+          display: flex;
+          flex-flow: row nowrap;
+          font-size: 0.8rem;
+        }
+
+        .auth__checkbox input {
+          margin-left: 0;
+        }
+
+        .auth__button {
+          height: 30px;
+        }
+
         .menu {
           width: 100%;
           height: 100%;

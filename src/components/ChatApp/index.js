@@ -4,7 +4,7 @@ const baseChatImagePath = './assets/images/chat-app';
 
 export default class ChatApp extends DesktopWindow {
   _state;
-  _username = localStorage.getItem('username') || null;
+  _username = localStorage.getItem('chat-app-username') || null;
 
   get state() {
     return this._state;
@@ -19,18 +19,18 @@ export default class ChatApp extends DesktopWindow {
   }
 
   get username() {
-    return this._username || localStorage.getItem('username') || null;
+    return this._username || localStorage.getItem('chat-app-username') || null;
   }
 
   set username(value) {
     if (value === null || value === undefined) {
       this._username = null;
-      localStorage.removeItem('username');
+      localStorage.removeItem('chat-app-username');
     } else {
       const { username, rememberMe } = value;
       this._username = username;
       if (rememberMe) {
-        localStorage.setItem('username', username);
+        localStorage.setItem('chat-app-username', username);
       }
     }
   }
