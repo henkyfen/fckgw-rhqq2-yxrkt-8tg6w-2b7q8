@@ -90,9 +90,17 @@ export default class PersonalWebDesktop extends HTMLElement {
   handleClickTab(event) {
     const { windowId } = event.detail;
     const desktopWindow = this.openedWindows.get(windowId);
-    desktopWindow.style.display = desktopWindow.style.display === 'none' ? 'block' : 'none';
-    if (desktopWindow.style.display === 'block' && this.currentlyFocusedWindow !== desktopWindow) {
+
+    if (!desktopWindow) return;
+
+    const isWindowHidden = desktopWindow.style.display === 'none';
+    const isWindowFocused = this.currentlyFocusedWindow === desktopWindow;
+
+    if (isWindowHidden || !isWindowFocused) {
+      desktopWindow.style.display = 'block';
       this.bringWindowToFront(desktopWindow);
+    } else {
+      desktopWindow.style.display = 'none';
     }
   }
 
