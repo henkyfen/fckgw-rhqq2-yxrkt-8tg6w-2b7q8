@@ -99,6 +99,10 @@ export default class QuizMenu extends HTMLElement {
           box-sizing: border-box;
         }
 
+        :host {
+          width: 300px;
+        }
+
         .menu {
           height: 100%;
           display: flex;

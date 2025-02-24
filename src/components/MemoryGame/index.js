@@ -169,8 +169,8 @@ export default class MemoryGame extends DesktopWindow {
 
     const boardElement = document.createElement('div');
     boardElement.classList.add('board');
-    boardElement.style.gridTemplateColumns = `repeat(${boardData.columnCount}, 1fr)`;
-    boardElement.style.gridTemplateRows = `repeat(${boardData.rowCount}, 1fr)`;
+    boardElement.style.gridTemplateColumns = `repeat(${boardData.columnCount}, 80px)`;
+    boardElement.style.gridTemplateRows = `repeat(${boardData.rowCount}, 80px)`;
 
     boardData.tileObjectList.forEach((tile) => {
       boardElement.appendChild(tile.tileTag);
@@ -320,7 +320,8 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   createGameOverWindow(state) {
-    const window = document.createElement('div');
+    const gameOverWindow = document.createElement('div');
+    gameOverWindow.classList.add('game-over');
 
     const messageElement = document.createElement('p');
     switch (state) {
@@ -331,28 +332,28 @@ export default class MemoryGame extends DesktopWindow {
         messageElement.textContent = 'Game Over! You ran out of time. Wanna try again?';
         break;
     }
-    messageElement.style.margin = '1rem';
+    messageElement.style.textAlign = 'center';
+    messageElement.style.margin = '1rem 1rem 0';
 
     const controlPanel = document.createElement('div');
-    controlPanel.style.margin = '1rem';
-    controlPanel.style.display = 'flex';
-    controlPanel.style.justifyContent = 'center';
-    controlPanel.style.gap = '1rem';
+    controlPanel.classList.add('game-over__control-panel');
 
     const restartButton = document.createElement('button');
+    restartButton.classList.add('game-over__button');
     restartButton.textContent = 'Restart Game';
     restartButton.dataset.action = 'restart';
 
     const closeButton = document.createElement('button');
+    closeButton.classList.add('game-over__button');
     closeButton.textContent = 'Back to Menu';
     closeButton.dataset.action = 'backToMenu';
 
-    window.appendChild(messageElement);
-    window.appendChild(controlPanel);
+    gameOverWindow.appendChild(messageElement);
+    gameOverWindow.appendChild(controlPanel);
     controlPanel.appendChild(restartButton);
     controlPanel.appendChild(closeButton);
 
-    return window;
+    return gameOverWindow;
   }
 
   restartGame() {
@@ -415,10 +416,10 @@ export default class MemoryGame extends DesktopWindow {
         }
 
         .menu__control-panel {
-          padding: 1rem;
           display: flex;
-          flex-wrap: wrap;
+          flex-flow: row nowrap;
           gap: 10px;
+          padding: 1rem;
         }
 
         .menu__control-panel button {
@@ -430,6 +431,7 @@ export default class MemoryGame extends DesktopWindow {
           flex-direction: column;
           align-items: center;
           gap: 1rem;
+          height: 100%;
         }
 
         .timer {
@@ -441,6 +443,8 @@ export default class MemoryGame extends DesktopWindow {
           width: 100%;
           height: 100%;
           display: grid;
+          justify-content: center;
+          align-content: center;
           gap: 5px;
         }
 
@@ -466,6 +470,26 @@ export default class MemoryGame extends DesktopWindow {
           left: 50%;
           transform: translateX(-50%);
           pointer-events: none;
+        }
+
+        .game-over {
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+        }
+
+        .game-over__control-panel {
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: center;
+          gap: 1rem;
+          margin: 1rem;
+        }
+
+        .game-over__button {
+          white-space: nowrap;
         }
       </style>`
     );

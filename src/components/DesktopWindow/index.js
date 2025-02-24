@@ -40,6 +40,53 @@ function handleMouseMoveForDrag(event) {
   style.top = `${newY}px`;
 }
 
+const ResizeManager = {
+  currentlyResizedInstance: null,
+};
+
+window.addEventListener('mousemove', handleMouseMoveForResize);
+window.addEventListener('mouseout', stopResize);
+window.addEventListener('mouseup', stopResize);
+
+/**
+ * Stops the resizing operation by resetting the resizing state
+ * of the currently resized instance.
+ */
+function stopResize() {
+  const instance = ResizeManager.currentlyResizedInstance;
+  if (instance) {
+    instance.isResizingX = false;
+    instance.isResizingY = false;
+    ResizeManager.currentlyResizedInstance = null;
+  }
+}
+
+/**
+ * Handles the mouse move event for resizing.
+ * Updates the dimensions of the currently resized instance.
+ * @param {MouseEvent} event - The mouse move event.
+ */
+function handleMouseMoveForResize(event) {
+  const instance = ResizeManager.currentlyResizedInstance;
+  if (!instance) return;
+
+  const { clientX, clientY } = event;
+  const { offsetLeft, offsetTop, style } = instance;
+
+  const minWidth = 112;
+  const minHeight = 27;
+
+  if (instance.isResizingX) {
+    const newWidth = Math.max(minWidth, clientX - offsetLeft + 3);
+    style.width = `${newWidth}px`;
+  }
+
+  if (instance.isResizingY) {
+    const newHeight = Math.max(minHeight, clientY - offsetTop);
+    style.height = `${newHeight}px`;
+  }
+}
+
 /**
  * Represents a desktop window component that can be dragged, resized, minimized, and maximized.
  * This class extends the HTMLElement and provides custom behavior for window management.
@@ -56,6 +103,7 @@ export default class DesktopWindow extends HTMLElement {
   maxY = window.innerHeight - 60;
   offsetX;
   offsetY;
+  isResizable;
   body;
 
   /**
@@ -64,6 +112,7 @@ export default class DesktopWindow extends HTMLElement {
    */
   connectedCallback() {
     this.dataId = this.dataset.windowId;
+    this.isResizable = this.getAttribute('resizable') !== 'false';
     this.render();
     this.addEventListeners();
   }
@@ -86,7 +135,7 @@ export default class DesktopWindow extends HTMLElement {
   }
 
   /**
-   * Creates the window container element with title bar.
+   * Creates the window container element with title bar and resizers.
    * @returns {HTMLElement} The window container element.
    */
   createWindowContainer() {
@@ -100,6 +149,9 @@ export default class DesktopWindow extends HTMLElement {
           <button class="title-bar-button" aria-label="Close"></button>
         </div>
       </div>
+      <div class="window__resizer_bottom"></div>
+      <div class="window__resizer_corner"></div>
+      <div class="window__resizer_right"></div>
     `;
     return container;
   }
@@ -166,6 +218,7 @@ export default class DesktopWindow extends HTMLElement {
     const titleBar = this.shadowRoot.querySelector('.window__title-bar');
     titleBar.addEventListener('mousedown', this.handleTitleBarMouseDown.bind(this));
     titleBar.addEventListener('click', this.handleTitleBarClick.bind(this));
+    this.shadowRoot.addEventListener('mousedown', this.handleResizerMouseDown.bind(this));
     this.shadowRoot.addEventListener('click', this.handleControlPanelClick.bind(this));
     window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
   }
@@ -289,6 +342,23 @@ export default class DesktopWindow extends HTMLElement {
     }
   }
 
+  /**
+   * Handles the mousedown event on the resizers for resizing.
+   * @param {MouseEvent} event - The mousedown event.
+   */
+  handleResizerMouseDown(event) {
+    const target = event.target;
+    const isBottomResizer = target.classList.contains('window__resizer_bottom');
+    const isRightResizer = target.classList.contains('window__resizer_right');
+    const isCornerResizer = target.classList.contains('window__resizer_corner');
+    const isResizable = this.isResizable;
+
+    if (isResizable && (isBottomResizer || isRightResizer || isCornerResizer)) {
+      ResizeManager.currentlyResizedInstance = this;
+      this.isResizingY = isBottomResizer || isCornerResizer;
+      this.isResizingX = isRightResizer || isCornerResizer;
+    }
+  }
 
   /**
    * Handles the custom window focus change event.
@@ -307,13 +377,15 @@ export default class DesktopWindow extends HTMLElement {
     return `
       <style>
         :host {
-          display: block;
+          display: flex;
+          flex-flow: column nowrap;
           position: fixed;
+          min-width: fit-content;
+          min-height: fit-content;
+          max-width: 100%;
+          max-height: calc(100% - 35px);
           width: fit-content;
           height: fit-content;
-
-          min-width: 112px;
-          min-height: 27px;
 
           font-size: 11px;
           box-shadow: inset -1px -1px #00138c, inset 1px 1px #0831d9, inset -2px -2px #001ea0,
@@ -323,6 +395,13 @@ export default class DesktopWindow extends HTMLElement {
           padding: 0 0 3px 0;
           -webkit-font-smoothing: antialiased;
           background: #ece9d8;
+        }
+
+        :host(.maximized) {
+          width: 100% !important;
+          height: calc(100% - 35px) !important;
+          top: 0 !important;
+          left: 0 !important;
         }
 
         button:not(.title-bar-button) {
@@ -367,6 +446,55 @@ export default class DesktopWindow extends HTMLElement {
 
         button:not(.title-bar-button)::-moz-focus-inner {
           border: 0;
+        }
+
+        .window {
+          display: flex;
+          flex-flow: column nowrap;
+          flex-grow: 1;
+          min-height: fit-content;
+        }
+
+        .window__resizer_corner,
+        .window__resizer_bottom,
+        .window__resizer_right {
+          user-select: none;
+        }
+
+        .window__resizer_corner {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          bottom: 0;
+          right: 0;
+        }
+
+        :host(:not(.maximized)) .window__resizer_corner {
+          cursor: ${this.isResizable ? 'nwse-resize' : 'default'};
+        }
+
+        .window__resizer_bottom {
+          position: absolute;
+          width: calc(100% - 6px);
+          height: 4px;
+          bottom: 0;
+          left: 0;
+        }
+
+        :host(:not(.maximized)) .window__resizer_bottom {
+          cursor: ${this.isResizable ? 'ns-resize' : 'default'};
+        }
+ 
+        .window__resizer_right {
+          position: absolute;
+          width: 4px;
+          height: calc(100% - 6px);
+          top: 0;
+          right: 0;
+        }
+      
+        :host(:not(.maximized)) .window__resizer_right {
+          cursor: ${this.isResizable ? 'ew-resize' : 'default'};
         }
 
         .window__title-bar {
@@ -461,8 +589,10 @@ export default class DesktopWindow extends HTMLElement {
         }
 
         .window__body {
-          overflow: hidden;
+          height: 100%;
+          min-height: fit-content;
           padding: 8px;
+          overflow: hidden;
         }
 
         button.title-bar-button {

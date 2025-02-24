@@ -17,8 +17,10 @@ export default class DesktopIcon extends HTMLElement {
       this.getAttribute('icon-src') || `${baseDesktopIconsImagePath}/folder-empty.png`;
     const name = this.getAttribute('name') || 'New Folder';
     const targetTagName = this.getAttribute('target-tag-name') || 'desktop-window';
+    const isResizable = this.getAttribute('resizable') !== 'false'; // defaults to true
     this.name = name;
     this.targetTagName = targetTagName;
+    this.isResizable = isResizable;
 
     const cell = document.createElement('div');
     cell.classList.add('desktop-icon');
@@ -39,7 +41,11 @@ export default class DesktopIcon extends HTMLElement {
 
   handleDoubleClick() {
     const event = new CustomEvent('iconDoubleClick', {
-      detail: { windowTitle: this.name, windowTag: this.targetTagName },
+      detail: {
+        windowTitle: this.name,
+        windowTag: this.targetTagName,
+        isResizable: this.isResizable,
+      },
       bubbles: true,
       composed: true,
     });

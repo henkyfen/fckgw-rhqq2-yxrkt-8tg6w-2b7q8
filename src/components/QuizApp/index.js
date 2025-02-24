@@ -192,11 +192,13 @@ export default class Quiz extends DesktopWindow {
         .quiz-container {
           display: flex;
           flex-flow: column nowrap;
-          align-items: stretch;
+          align-items: center;
           justify-content: center;
-          width: 300px;
+          width: 100%;
+          height: 100%;
           padding: 32px;
           border-radius: 8px;
+          box-sizing: border-box;
         }
       </style>
     `

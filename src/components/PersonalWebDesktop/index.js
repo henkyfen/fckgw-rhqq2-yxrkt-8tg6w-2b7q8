@@ -68,9 +68,9 @@ export default class PersonalWebDesktop extends HTMLElement {
   }
 
   handleIconDoubleClick(event) {
-    const { windowTitle, windowTag } = event.detail;
+    const { windowTitle, windowTag, isResizable } = event.detail;
 
-    const { windowId, desktopWindow } = this.createWindow(windowTitle, windowTag);
+    const { windowId, desktopWindow } = this.createWindow(windowTitle, windowTag, isResizable);
 
     if (windowId === null) return;
 
@@ -96,11 +96,14 @@ export default class PersonalWebDesktop extends HTMLElement {
     }
   }
 
-  createWindow(windowTitle, tagName) {
+  createWindow(windowTitle, tagName, isResizable) {
     const desktopWindow = tagName
       ? document.createElement(tagName)
       : document.createElement('desktop-window');
     desktopWindow.setAttribute('title', windowTitle);
+    if (isResizable !== undefined) {
+      desktopWindow.setAttribute('resizable', isResizable);
+    }
     const windowId = this.generateUniqueId();
     desktopWindow.dataset.windowId = windowId;
     this.openedWindows.set(windowId, desktopWindow);
