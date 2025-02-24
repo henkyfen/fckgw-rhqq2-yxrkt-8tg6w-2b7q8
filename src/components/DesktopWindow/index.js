@@ -827,6 +827,41 @@ export default class DesktopWindow extends HTMLElement {
         input[type="checkbox"][disabled]:checked + label::after {
           background: url('${baseIconsImagePath}/checkmark-disabled.svg');
         }
+
+        *::-webkit-scrollbar {
+          width: 17px;
+          height: 17px;
+          background: #ebf3fc;
+        }
+
+        *::-webkit-scrollbar-thumb {
+          background: linear-gradient(to bottom, #c3d9ff, #94bce0);
+          border: 1px solid #95bce0;
+          border-radius: 0;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(to bottom, #b0cfff, #80ace0);
+        }
+
+        *::-webkit-scrollbar-button:single-button {
+          background: #ebf3fc;
+          height: 17px;
+          width: 17px;
+          border: 1px solid #95bce0;
+        }
+
+        *::-webkit-scrollbar-button:single-button:vertical:decrement {
+          background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="4"><polygon points="0,4 4,0 8,4" fill="%233a6ea5"/></svg>');
+          background-repeat: no-repeat;
+          background-position: center;
+        }
+
+        *::-webkit-scrollbar-button:single-button:vertical:increment {
+          background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="4"><polygon points="0,0 4,4 8,0" fill="%233a6ea5"/></svg>');
+          background-repeat: no-repeat;
+          background-position: center;
+        }
       </style>
     `;
   }
