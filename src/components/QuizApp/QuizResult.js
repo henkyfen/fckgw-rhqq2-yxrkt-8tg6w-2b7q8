@@ -96,12 +96,21 @@ export default class QuizResult extends HTMLElement {
 
   /**
    * Adds event listeners to the buttons for handling user interactions.
-   * Listens for clicks on "Try Again" button.
+   * Listens for clicks on "Try Again" and "Scoreboard" buttons.
    * @private
    */
   addEventListeners() {
     this.shadowRoot.getElementById('tryAgainButton').addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('restart-quiz'));
+    });
+    this.shadowRoot.getElementById('scoreboardButton').addEventListener('click', () => {
+      this.dispatchEvent(
+        new CustomEvent('navigate-to', {
+          detail: { view: 'scoreboard' },
+          bubbles: true,
+          composed: true,
+        }),
+      );
     });
   }
 
@@ -156,13 +165,15 @@ export default class QuizResult extends HTMLElement {
   getTemplate() {
     return `
       <div class="result">
-        <h2>${this.status === 'done' ? 'Congratulations' : 'Better luck next time'}, ${
-      this.username || 'Guest'
-    }!</h2>
+        <h2>
+          ${this.status === 'done' ? 'Congratulations' : 'Better luck next time'},
+          ${this.username || 'Guest'}!
+        </h2>
         <p class="result__paragraph">${this.resultMessage}</p>
         <p class="result__paragraph">It took you ${(this.elapsedTime / 1000).toFixed(3)} seconds</p>
         <div class="result__control-panel">
           <button class="result__button" id="tryAgainButton">Try Again</button>
+          <button class="result__button" id="scoreboardButton">Scoreboard</button>
         </div>
       </div>
     `;

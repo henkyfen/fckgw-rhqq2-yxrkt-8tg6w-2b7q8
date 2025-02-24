@@ -454,7 +454,6 @@ export default class DesktopWindow extends HTMLElement {
           display: flex;
           flex-flow: column nowrap;
           flex-grow: 1;
-          min-height: fit-content;
         }
 
         .window__resizer_corner,
@@ -591,8 +590,8 @@ export default class DesktopWindow extends HTMLElement {
         }
 
         .window__body {
-          height: 100%;
-          min-height: fit-content;
+          height: fit-content;
+          max-height: calc(100svh - 105px);
           padding: 8px;
           overflow: hidden;
         }

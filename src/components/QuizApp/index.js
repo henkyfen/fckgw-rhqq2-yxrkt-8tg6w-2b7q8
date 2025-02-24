@@ -2,6 +2,7 @@ import DesktopWindow from '../DesktopWindow';
 import QuizMenu from './QuizMenu';
 import QuizContent from './QuizContent';
 import QuizResult from './QuizResult';
+import QuizScoreboard from './QuizScoreboard';
 
 /**
  * Quiz is a custom HTML element that manages the quiz flow,
@@ -78,6 +79,8 @@ export default class Quiz extends DesktopWindow {
         return this.createResultComponent('done');
       case 'failed':
         return this.createResultComponent('failed');
+      case 'scoreboard':
+        return this.createScoreboardComponent();
       default:
         throw new Error('Invalid view state');
     }
@@ -164,6 +167,7 @@ export default class Quiz extends DesktopWindow {
     result.setAttribute('elapsed-time', this.state.endTime - this.state.startTime);
     result.setAttribute('result-message', this.state.resultMessage);
     result.addEventListener('restart-quiz', this.handleRestartQuiz.bind(this));
+    result.addEventListener('navigate-to', this.handleNavigateTo.bind(this));
     return result;
   }
 
@@ -177,6 +181,28 @@ export default class Quiz extends DesktopWindow {
       currentView: 'content',
       startTime: new Date(),
     });
+  }
+
+  /**
+   * Handles navigation to a different view within the quiz application.
+   * Updates the current view state based on the event's detail.
+   * @param {CustomEvent} event - The event object containing the view to navigate to.
+   * @private
+   */
+  handleNavigateTo(event) {
+    const view = event.detail.view;
+    if (view) {
+      this.updateState({ currentView: view });
+    }
+  }
+
+  /**
+   * Creates and returns the scoreboard component.
+   * @returns {QuizScoreboard} The scoreboard component.
+   * @private
+   */
+  createScoreboardComponent() {
+    return new QuizScoreboard(this);
   }
 
   /**
