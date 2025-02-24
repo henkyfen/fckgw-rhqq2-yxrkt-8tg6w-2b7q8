@@ -146,6 +146,7 @@ export default class DesktopWindow extends HTMLElement {
         <div class="window__title-bar-text">${this.getWindowTitle()}</div>
         <div class="window__title-bar-controls">
           <button class="title-bar-button" aria-label="Minimize"></button>
+          <button class="title-bar-button" aria-label="Maximize"></button>
           <button class="title-bar-button" aria-label="Close"></button>
         </div>
       </div>
@@ -351,9 +352,10 @@ export default class DesktopWindow extends HTMLElement {
     const isBottomResizer = target.classList.contains('window__resizer_bottom');
     const isRightResizer = target.classList.contains('window__resizer_right');
     const isCornerResizer = target.classList.contains('window__resizer_corner');
+    const isMaximized = this.classList.contains('maximized');
     const isResizable = this.isResizable;
 
-    if (isResizable && (isBottomResizer || isRightResizer || isCornerResizer)) {
+    if (!isMaximized && isResizable && (isBottomResizer || isRightResizer || isCornerResizer)) {
       ResizeManager.currentlyResizedInstance = this;
       this.isResizingY = isBottomResizer || isCornerResizer;
       this.isResizingX = isRightResizer || isCornerResizer;
