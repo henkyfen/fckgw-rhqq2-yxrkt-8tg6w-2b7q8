@@ -52,6 +52,25 @@ export default class Quiz extends DesktopWindow {
     };
   }
 
+  createControlPanel() {
+    const controlPanel = document.createElement('div');
+    controlPanel.classList.add('window__control-panel');
+
+    controlPanel.innerHTML = `
+      <div class="window__dropdown">
+        <div class="window__dropdown-activator">View</div>
+        <div class="window__dropdown-content">
+          <div data-action="back-to-menu" class="window__dropdown-choice" style="white-space: nowrap;">Main Menu</div>
+          <div data-action="view-scoreboard" class="window__dropdown-choice" style="white-space: nowrap;">Scoreboard</div>
+        </div>
+      </div>
+    `;
+
+    this.controlPanel = controlPanel;
+
+    return controlPanel;
+  }
+
   /**
    * Renders the body of the quiz component based on the current state.
    * @param {object} state - The current state of the quiz.
@@ -62,6 +81,23 @@ export default class Quiz extends DesktopWindow {
     const component = this.getCurrentView(state.currentView);
     container.appendChild(component);
     this.body.replaceChildren(container);
+  }
+
+  addEventListeners() {
+    super.addEventListeners();
+    this.controlPanel.addEventListener('click', this.handleClick.bind(this));
+  }
+
+  handleClick(event) {
+    const action = event.target.dataset.action;
+    switch (action) {
+      case 'back-to-menu':
+        this.updateState({ currentView: 'menu' });
+        break;
+      case 'view-scoreboard':
+        this.updateState({ currentView: 'scoreboard' });
+        break;
+    }
   }
 
   /**
@@ -223,7 +259,6 @@ export default class Quiz extends DesktopWindow {
           width: 100%;
           height: 100%;
           padding: 32px;
-          border-radius: 8px;
           box-sizing: border-box;
         }
       </style>
