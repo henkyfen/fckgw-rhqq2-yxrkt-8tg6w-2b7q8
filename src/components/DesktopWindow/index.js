@@ -590,8 +590,8 @@ export default class DesktopWindow extends HTMLElement {
         }
 
         .window__body {
-          height: fit-content;
-          max-height: calc(100svh - 105px);
+          height: 100%;
+          max-height: calc(100svh - 89px);
           padding: 8px;
           overflow: hidden;
         }

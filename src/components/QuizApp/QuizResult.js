@@ -16,6 +16,23 @@ export default class QuizResult extends HTMLElement {
   }
 
   /**
+   * Called when an observed attribute has been added, removed, updated, or replaced.
+   * Updates the component's properties and re-renders the component.
+   * @param {string} name - The name of the attribute.
+   * @param {string} oldValue - The old value of the attribute.
+   * @param {string} newValue - The new value of the attribute.
+   */
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      // Convert kebab-case to camelCase for JavaScript
+      const propertyName = name.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+      this[propertyName] = newValue;
+      this.render();
+      this.addEventListeners();
+    }
+  }
+
+  /**
    * Constructs the QuizResult component, initializes rendering and event handlers.
    * @param {HTMLElement} quizAppElement - The parent quiz app element.
    */
@@ -58,31 +75,14 @@ export default class QuizResult extends HTMLElement {
   }
 
   /**
-   * Called when an observed attribute has been added, removed, updated, or replaced.
-   * Updates the component's properties and re-renders the component.
-   * @param {string} name - The name of the attribute.
-   * @param {string} oldValue - The old value of the attribute.
-   * @param {string} newValue - The new value of the attribute.
-   */
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      // Convert kebab-case to camelCase for JavaScript
-      const propertyName = name.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
-      this[propertyName] = newValue;
-      this.render();
-      this.addEventListeners();
-    }
-  }
-
-  /**
    * Updates the local storage with the user's quiz score.
    * Stores the username and elapsed time in seconds.
    * @private
    */
   updateLocalStorage() {
-    const scores = JSON.parse(localStorage.getItem('quizScores')) || [];
+    const scores = JSON.parse(localStorage.getItem('quiz-scores')) || [];
     scores.push({ name: this.username, time: this.elapsedTime / 1000 });
-    localStorage.setItem('quizScores', JSON.stringify(scores));
+    localStorage.setItem('quiz-scores', JSON.stringify(scores));
   }
 
   /**

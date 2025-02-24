@@ -54,7 +54,7 @@ export default class QuizScoreboard extends HTMLElement {
    * @private
    */
   getScoresFromLocalStorage() {
-    return JSON.parse(localStorage.getItem('quizScores')) || [];
+    return JSON.parse(localStorage.getItem('quiz-scores')) || [];
   }
 
   /**
