@@ -15,7 +15,6 @@ export default class QuizScoreboard extends HTMLElement {
     super();
     this.quizAppElement = quizAppElement;
     this.render();
-    this.addEventListeners();
   }
 
   /**
