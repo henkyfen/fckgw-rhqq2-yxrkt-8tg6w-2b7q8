@@ -4,30 +4,15 @@ const DragManager = {
   currentlyDraggedInstance: null,
 };
 
-window.addEventListener('mouseout', handleMouseOut);
-window.addEventListener('mousemove', handleMouseMove);
-window.addEventListener('mouseup', handleMouseUp);
+window.addEventListener('mousemove', handleMouseMoveForDrag);
+window.addEventListener('mouseout', stopDrag);
+window.addEventListener('mouseup', stopDrag);
 
-function handleMouseOut() {
-  const instance = DragManager.currentlyDraggedInstance;
-  if (instance) {
-    instance.isDragging = false;
-  }
-}
-
-function handleMouseMove(event) {
-  const instance = DragManager.currentlyDraggedInstance;
-
-  if (instance && instance.isDragging) {
-    const newX = Math.min(Math.max(0, event.clientX - instance.offsetX), instance.maxX - 1);
-    const newY = Math.min(Math.max(0, event.clientY - instance.offsetY), instance.maxY);
-
-    instance.style.left = `${newX}px`;
-    instance.style.top = `${newY}px`;
-  }
-}
-
-function handleMouseUp() {
+/**
+ * Stops the dragging operation by resetting the dragging state
+ * of the currently dragged instance.
+ */
+function stopDrag() {
   const instance = DragManager.currentlyDraggedInstance;
   if (instance) {
     instance.isDragging = false;
@@ -35,24 +20,57 @@ function handleMouseUp() {
   }
 }
 
+/**
+ * Handles the mouse move event for dragging.
+ * Updates the position of the currently dragged instance.
+ * @param {MouseEvent} event - The mouse move event.
+ */
+function handleMouseMoveForDrag(event) {
+  const instance = DragManager.currentlyDraggedInstance;
+
+  if (!instance || !instance.isDragging) return;
+
+  const { clientX, clientY } = event;
+  const { offsetX, offsetY, maxX, maxY, style } = instance;
+
+  const newX = Math.min(clientX - offsetX, maxX - 1);
+  const newY = Math.min(Math.max(0, clientY - offsetY), maxY);
+
+  style.left = `${newX}px`;
+  style.top = `${newY}px`;
+}
+
+/**
+ * Represents a desktop window component that can be dragged, resized, minimized, and maximized.
+ * This class extends the HTMLElement and provides custom behavior for window management.
+ * @class
+ * @augments HTMLElement
+ */
 export default class DesktopWindow extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
   isFocused = false;
   isDragging = false;
-  maxX;
+  maxX = window.innerWidth;
   // 32 (taskbar height) + 28 (window title bar height) = 60
   maxY = window.innerHeight - 60;
   offsetX;
   offsetY;
   body;
 
+  /**
+   * Called when the element is added to the document.
+   * Initializes the component by rendering and adding event listeners.
+   */
   connectedCallback() {
     this.dataId = this.dataset.windowId;
     this.render();
     this.addEventListeners();
   }
 
+  /**
+   * Renders the window's HTML structure and appends it to the shadow DOM.
+   */
   render() {
     this.shadowRoot.innerHTML = this.getStyles();
     const container = this.createWindowContainer();
@@ -67,6 +85,10 @@ export default class DesktopWindow extends HTMLElement {
     this.shadowRoot.appendChild(container);
   }
 
+  /**
+   * Creates the window container element with title bar.
+   * @returns {HTMLElement} The window container element.
+   */
   createWindowContainer() {
     const container = document.createElement('div');
     container.classList.add('window');
@@ -82,16 +104,29 @@ export default class DesktopWindow extends HTMLElement {
     return container;
   }
 
+  /**
+   * Creates the window body element.
+   * @returns {HTMLElement} The window body element.
+   */
   createWindowBody() {
     const body = document.createElement('div');
     body.classList.add('window__body');
     return body;
   }
 
+  /**
+   * Retrieves the window title from the element's attributes.
+   * @returns {string} The window title.
+   */
   getWindowTitle() {
     return this.getAttribute('title') || 'Untitled Window';
   }
 
+  /**
+   * Creates the control panel for the window.
+   * This method should be implemented in a subclass.
+   * @returns {HTMLElement|null} The control panel element or null.
+   */
   createControlPanel() {
     /*
      * This method must be implemented in a subclass.
@@ -121,22 +156,73 @@ export default class DesktopWindow extends HTMLElement {
      *
      * return controlPanel;
      */
+    return null;
   }
 
+  /**
+   * Adds event listeners for the window's interactive elements.
+   */
   addEventListeners() {
-    this.shadowRoot
-      .querySelector('.window__title-bar')
-      .addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.shadowRoot
-      .querySelector('button[aria-label="Close"]')
-      .addEventListener('click', this.handleCloseClick.bind(this));
-    this.shadowRoot
-      .querySelector('button[aria-label="Minimize"]')
-      .addEventListener('click', this.handleMinimizeClick.bind(this));
-    window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
+    const titleBar = this.shadowRoot.querySelector('.window__title-bar');
+    titleBar.addEventListener('mousedown', this.handleTitleBarMouseDown.bind(this));
+    titleBar.addEventListener('click', this.handleTitleBarClick.bind(this));
     this.shadowRoot.addEventListener('click', this.handleControlPanelClick.bind(this));
+    window.addEventListener('windowFocusChange', this.handleFocusChange.bind(this));
   }
 
+  /**
+   * Handles click events on the title bar buttons.
+   * @param {MouseEvent} event - The click event.
+   */
+  handleTitleBarClick(event) {
+    const target = event.target;
+
+    switch (target.getAttribute('aria-label')) {
+      case 'Close':
+        this.handleCloseClick();
+        break;
+      case 'Maximize':
+        this.handleMaximizeClick();
+        break;
+      case 'Minimize':
+        this.handleMinimizeClick();
+        break;
+    }
+  }
+
+  /**
+   * Handles the close button click event.
+   * Dispatches a custom event to close the window.
+   */
+  handleCloseClick() {
+    const closeEvent = new CustomEvent('closeWindow', {
+      detail: { id: this.dataId },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(closeEvent);
+  }
+
+  /**
+   * Handles the maximize button click event.
+   * Toggles the maximized state of the window.
+   */
+  handleMaximizeClick() {
+    this.classList.toggle('maximized');
+  }
+
+  /**
+   * Handles the minimize button click event.
+   * Hides the window by setting its display to 'none'.
+   */
+  handleMinimizeClick() {
+    this.style.display = 'none';
+  }
+
+  /**
+   * Handles click events on the control panel.
+   * @param {MouseEvent} event - The click event.
+   */
   handleControlPanelClick(event) {
     const target = event.target;
     const isActivator = target.classList.contains('window__dropdown-activator');
@@ -152,6 +238,10 @@ export default class DesktopWindow extends HTMLElement {
     }
   }
 
+  /**
+   * Toggles the visibility of a dropdown menu.
+   * @param {HTMLElement} activator - The dropdown activator element.
+   */
   toggleDropdown(activator) {
     const content = activator.parentNode.querySelector('.window__dropdown-content');
     const isContentVisible = content.style.display === 'block';
@@ -160,11 +250,19 @@ export default class DesktopWindow extends HTMLElement {
     activator.parentNode.classList.toggle('active', !isContentVisible);
   }
 
+  /**
+   * Closes a specific dropdown menu.
+   * @param {HTMLElement} dropdownContent - The dropdown content element.
+   */
   closeDropdown(dropdownContent) {
     dropdownContent.style.display = 'none';
     dropdownContent.parentNode.classList.remove('active');
   }
 
+  /**
+   * Closes all dropdown menus except the specified one.
+   * @param {HTMLElement|null} excludeContent - The dropdown content to exclude from closing.
+   */
   closeAllDropdowns(excludeContent = null) {
     const allDropdownContents = this.shadowRoot.querySelectorAll('.window__dropdown-content');
     allDropdownContents.forEach((dropdownContent) => {
@@ -175,34 +273,36 @@ export default class DesktopWindow extends HTMLElement {
     });
   }
 
-  handleMouseDown(event) {
+  /**
+   * Handles the mousedown event on the title bar for dragging.
+   * @param {MouseEvent} event - The mousedown event.
+   */
+  handleTitleBarMouseDown(event) {
     if (event.target.tagName !== 'BUTTON') {
       this.isDragging = true;
-      this.offsetX = event.clientX - this.offsetLeft;
-      this.offsetY = event.clientY - this.offsetTop;
-      this.maxX = window.innerWidth - this.offsetWidth;
+      this.offsetX = event.offsetX;
+      this.offsetY = event.offsetY;
+      this.maxX = window.innerWidth;
+      // 32 (taskbar height) + 28 (window title bar height) = 60
+      this.maxY = window.innerHeight - 60;
       DragManager.currentlyDraggedInstance = this;
     }
   }
 
-  handleCloseClick() {
-    const closeEvent = new CustomEvent('closeWindow', {
-      detail: { id: this.dataId },
-      bubbles: true,
-      composed: true,
-    });
-    this.dispatchEvent(closeEvent);
-  }
 
-  handleMinimizeClick() {
-    this.style.display = 'none';
-  }
-
+  /**
+   * Handles the custom window focus change event.
+   * @param {CustomEvent} event - The custom event with focus details.
+   */
   handleFocusChange(event) {
     const focusedWindowId = event.detail.focusedWindowId;
     this.isFocused = this.dataset.windowId === focusedWindowId;
   }
 
+  /**
+   * Returns the styles for the window component.
+   * @returns {string} The styles as a string.
+   */
   getStyles() {
     return `
       <style>
