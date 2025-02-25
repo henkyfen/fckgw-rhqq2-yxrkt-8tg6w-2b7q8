@@ -20,11 +20,20 @@ export default class QuizMenu extends HTMLElement {
   }
 
   /**
-   * Lifecycle method called when the element is added to the document.
-   * Sets up a global keydown event listener to handle input.
+   * Called when the element is connected to the DOM.
+   * Initializes the component by setting up event listeners and
+   * restoring the username from local storage if available.
    */
   connectedCallback() {
     window.addEventListener('keydown', this.handleKeyDown);
+    const username = localStorage.getItem('quiz-app-username');
+
+    if (username) {
+      this.shadowRoot.querySelector('input[type="text"]').value = username;
+      this.shadowRoot.querySelector('input[name="remember-me"]').checked = true;
+    }
+
+    this.shadowRoot.querySelector('.menu').addEventListener('submit', this.handleSubmit.bind(this));
   }
 
   /**
@@ -42,11 +51,32 @@ export default class QuizMenu extends HTMLElement {
    */
   render() {
     this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
+  }
 
-    this.shadowRoot.querySelector('.menu').addEventListener('submit', (event) => {
-      event.preventDefault();
-      this.startQuiz();
-    });
+  /**
+   * Handles form submission to start the quiz.
+   * Saves username to local storage if 'remember-me' is checked.
+   * @param {Event} event - The form submission event.
+   */
+  handleSubmit (event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const username = formData.get('username').trim();
+    const rememberMe = formData.get('remember-me');
+
+    if (!username) {
+      alert('Please enter a valid username.');
+      return;
+    }
+
+    if (rememberMe) {
+      localStorage.setItem('quiz-app-username', username);
+    }
+
+    this.dispatchEvent(new CustomEvent('start-quiz', {
+      detail: { username },
+      bubbles: true
+    }));
   }
 
   /**
@@ -79,6 +109,27 @@ export default class QuizMenu extends HTMLElement {
    */
   isModifierKeyPressed(event) {
     return event.ctrlKey || event.altKey || event.metaKey;
+  }
+
+  /**
+   * Returns the HTML template for the quiz menu component.
+   * @returns {string} The HTML template string.
+   * @private
+   */
+  getTemplate() {
+    return `
+      <form class="menu">
+        <h2 class="menu__title">Welcome to the Quiz!</h2>
+        <div class="menu__control-panel">
+          <input class="menu__input-field" type="text" id="username" name="username" placeholder="Enter your name" required autofocus />
+          <div class="menu__checkbox">
+            <input type="checkbox" id="remember-me" name="remember-me" />
+            <label for="remember-me">Remember me</label>
+          </div>
+          <button class="menu__button" label="Start Quiz" type="submit" id="startButton">Start Quiz</button>
+        </div>
+      </form>
+    `;
   }
 
   /**
@@ -136,43 +187,18 @@ export default class QuizMenu extends HTMLElement {
           outline: none;
         }
 
+        .menu__checkbox {
+          display: flex;
+          flex-flow: row nowrap;
+          font-size: 0.8rem;
+        }
+
         .menu__button {
           height: 30px;
         }
       </style>
     `
     );
-  }
-
-  /**
-   * Returns the HTML template for the quiz menu component.
-   * @returns {string} The HTML template string.
-   * @private
-   */
-  getTemplate() {
-    return `
-      <form class="menu">
-        <h2 class="menu__title">Welcome to the Quiz!</h2>
-        <div class="menu__control-panel">
-          <input class="menu__input-field" type="text" id="username" placeholder="Enter your name" required autofocus />
-          <button class="menu__button" label="Start Quiz" type="submit" id="startButton">Start Quiz</button>
-        </div>
-      </form>
-    `;
-  }
-
-  /**
-   * Starts the quiz by dispatching a custom event with the username
-   * if a valid username is entered. Alerts the user if the username is invalid.
-   * @private
-   */
-  startQuiz() {
-    const username = this.shadowRoot.getElementById('username').value.trim();
-    if (username) {
-      this.dispatchEvent(new CustomEvent('start-quiz', { detail: { username }, bubbles: true }));
-    } else {
-      alert('Please enter a valid username.');
-    }
   }
 }
 
