@@ -1,5 +1,10 @@
 const baseDesktopIconsImagePath = './assets/images/desktop-icons';
 
+/**
+ * @class DesktopGrid
+ * @classdesc Represents a grid layout for desktop icons, allowing drag-and-drop functionality.
+ * @augments HTMLElement
+ */
 export default class DesktopGrid extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -8,12 +13,18 @@ export default class DesktopGrid extends HTMLElement {
   initialColumn;
   initialRow;
 
-  connectedCallback() {
+  /**
+   * Lifecycle method called when the component is added to the DOM.
+   */
+  connectedCallback () {
     this.render();
     this.addEventListeners();
   }
 
-  render() {
+  /**
+   * Renders the grid and its child elements.
+   */
+  render () {
     this.shadowRoot.innerHTML = this.getStyles();
 
     const grid = document.createElement('div');
@@ -48,7 +59,10 @@ export default class DesktopGrid extends HTMLElement {
     this.shadowRoot.appendChild(grid);
   }
 
-  addEventListeners() {
+  /**
+   * Adds event listeners for grid interactions.
+   */
+  addEventListeners () {
     window.addEventListener('resize', this.handleResize.bind(this));
 
     const grid = this.shadowRoot.querySelector('.grid');
@@ -64,7 +78,11 @@ export default class DesktopGrid extends HTMLElement {
     });
   }
 
-  handleGridClick(event) {
+  /**
+   * Handles click events on the grid.
+   * @param {Event} event - The click event.
+   */
+  handleGridClick (event) {
     const targetIcon = event
       .composedPath()
       .find((el) => el.classList && el.classList.contains('desktop-icon'));
@@ -80,7 +98,10 @@ export default class DesktopGrid extends HTMLElement {
     }
   }
 
-  handleResize() {
+  /**
+   * Handles window resize events to adjust grid layout.
+   */
+  handleResize () {
     const grid = this.shadowRoot.querySelector('.grid');
     const gridChildren = Array.from(grid.children);
 
@@ -90,7 +111,11 @@ export default class DesktopGrid extends HTMLElement {
     });
   }
 
-  handleDragStart(event) {
+  /**
+   * Handles the start of a drag event.
+   * @param {DragEvent} event - The dragstart event.
+   */
+  handleDragStart (event) {
     const element = event.target;
     this.draggedElement = element;
     element.classList.add('dragging');
@@ -112,12 +137,20 @@ export default class DesktopGrid extends HTMLElement {
     setTimeout(() => document.body.removeChild(dragImage), 0);
   }
 
-  handleDragOver(event) {
+  /**
+   * Handles dragover events to allow dropping.
+   * @param {DragEvent} event - The dragover event.
+   */
+  handleDragOver (event) {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }
 
-  handleDrop(event) {
+  /**
+   * Handles drop events to reposition elements.
+   * @param {DragEvent} event - The drop event.
+   */
+  handleDrop (event) {
     event.preventDefault();
 
     const grid = this.shadowRoot.querySelector('.grid');
@@ -149,18 +182,34 @@ export default class DesktopGrid extends HTMLElement {
         targetColumn,
         targetRow,
         columns,
-        rows,
+        rows
       );
       this.draggedElement.style.gridColumnStart = finalColumn;
       this.draggedElement.style.gridRowStart = finalRow;
     }
   }
 
-  calculatePosition(coordinate, size, gap) {
+  /**
+   * Calculates the grid position based on cursor coordinates.
+   * @param {number} coordinate - The cursor coordinate (x or y).
+   * @param {number} size - The size of the grid cell (width or height).
+   * @param {number} gap - The gap between grid cells.
+   * @returns {number} The calculated grid position.
+   */
+  calculatePosition (coordinate, size, gap) {
     return Math.ceil((coordinate + gap / 2) / (size + gap));
   }
 
-  findAvailablePosition(grid, targetColumn, targetRow, columns, rows) {
+  /**
+   * Finds an available position in the grid for the dragged element.
+   * @param {HTMLElement} grid - The grid element.
+   * @param {number} targetColumn - The target column for the dragged element.
+   * @param {number} targetRow - The target row for the dragged element.
+   * @param {number} columns - The total number of columns in the grid.
+   * @param {number} rows - The total number of rows in the grid.
+   * @returns {object} The final column and row for the dragged element.
+   */
+  findAvailablePosition (grid, targetColumn, targetRow, columns, rows) {
     const gridChildren = Array.from(grid.children);
     let currentColumn = targetColumn;
     let currentRow = targetRow;
@@ -201,12 +250,20 @@ export default class DesktopGrid extends HTMLElement {
     return { finalColumn: currentColumn, finalRow: currentRow };
   }
 
-  handleDragEnd(event) {
+  /**
+   * Handles the end of a drag event.
+   * @param {DragEvent} event - The dragend event.
+   */
+  handleDragEnd (event) {
     event.target.classList.remove('dragging');
     this.draggedElement = null;
   }
 
-  getStyles() {
+  /**
+   * Returns the styles for the grid component.
+   * @returns {string} The styles as a string.
+   */
+  getStyles () {
     return `
       <style>
         :host {

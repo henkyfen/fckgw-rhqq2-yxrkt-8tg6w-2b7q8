@@ -6,15 +6,28 @@ const baseChatImagePath = './assets/images/chat-app';
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 const openai = apiKey ? new OpenAI({ apiKey, dangerouslyAllowBrowser: true }) : null;
 
+/**
+ * @class ChatApp
+ * @classdesc A chat application interface that manages user authentication, channel selection, and message handling.
+ * @augments DesktopWindow
+ */
 export default class ChatApp extends DesktopWindow {
   _state;
   _username = localStorage.getItem('chat-app-username') || null;
 
-  get state() {
+  /**
+   * Gets the current state of the chat application.
+   * @returns {string} The current state.
+   */
+  get state () {
     return this._state;
   }
 
-  set state(value) {
+  /**
+   * Sets the state of the chat application and updates the UI.
+   * @param {string} value - The new state to set.
+   */
+  set state (value) {
     this._state = value;
     this.closeConnection();
     this.messageListElement = null;
@@ -22,11 +35,19 @@ export default class ChatApp extends DesktopWindow {
     this.renderBody(value);
   }
 
-  get username() {
+  /**
+   * Gets the current username.
+   * @returns {string|null} The current username or null if not set.
+   */
+  get username () {
     return this._username || localStorage.getItem('chat-app-username') || null;
   }
 
-  set username(value) {
+  /**
+   * Sets the username and optionally remembers it in local storage.
+   * @param {object | null} value - The username object containing username and rememberMe flag.
+   */
+  set username (value) {
     if (value === null || value === undefined) {
       this._username = null;
       localStorage.removeItem('chat-app-username');
@@ -48,16 +69,26 @@ export default class ChatApp extends DesktopWindow {
   changeChannelButton;
   controlPanel;
 
-  connectedCallback() {
+  /**
+   * Lifecycle method called when the component is added to the DOM.
+   */
+  connectedCallback () {
     super.connectedCallback();
     this.state = 'username-choice';
   }
 
-  disconnectedCallback() {
+  /**
+   * Lifecycle method called when the component is removed from the DOM.
+   */
+  disconnectedCallback () {
     this.closeConnection();
   }
 
-  createControlPanel() {
+  /**
+   * Creates the control panel for the chat application.
+   * @returns {HTMLElement} The control panel element.
+   */
+  createControlPanel () {
     const controlPanel = document.createElement('div');
     controlPanel.classList.add('window__control-panel');
 
@@ -77,7 +108,11 @@ export default class ChatApp extends DesktopWindow {
     return controlPanel;
   }
 
-  renderBody(state) {
+  /**
+   * Renders the body of the chat application based on the current state.
+   * @param {string} state - The current state of the application.
+   */
+  renderBody (state) {
     this.body.style.width = '250px';
     this.body.style.height = '400px';
 
@@ -105,13 +140,20 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  addEventListeners() {
+  /**
+   * Adds event listeners to the chat application.
+   */
+  addEventListeners () {
     super.addEventListeners();
     this.controlPanel.addEventListener('click', this.handleClick.bind(this));
     this.body.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
-  handleClick(event) {
+  /**
+   * Handles click events on the control panel.
+   * @param {Event} event - The click event.
+   */
+  handleClick (event) {
     const action = event.target.dataset.action;
 
     switch (action) {
@@ -125,7 +167,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  handleSubmit(event) {
+  /**
+   * Handles form submission events.
+   * @param {Event} event - The submit event.
+   */
+  handleSubmit (event) {
     event.preventDefault();
     const form = event.target;
 
@@ -144,7 +190,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  handleAuthFormSubmit(form) {
+  /**
+   * Handles the submission of the authentication form.
+   * @param {HTMLFormElement} form - The authentication form element.
+   */
+  handleAuthFormSubmit (form) {
     const formData = new FormData(form);
     const username = formData.get('username');
     const rememberMe = formData.get('remember-me');
@@ -154,7 +204,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  handleChannelChoiceFormSubmit(form) {
+  /**
+   * Handles the submission of the channel choice form.
+   * @param {HTMLFormElement} form - The channel choice form element.
+   */
+  handleChannelChoiceFormSubmit (form) {
     const formData = new FormData(form);
     const channel = formData.get('channel');
     if (channel) {
@@ -164,7 +218,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  handleMessageFormSubmit(form) {
+  /**
+   * Handles the submission of the message form.
+   * @param {HTMLFormElement} form - The message form element.
+   */
+  handleMessageFormSubmit (form) {
     const formData = new FormData(form);
     const message = formData.get('message');
     if (message) {
@@ -175,7 +233,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  sendMessage(data) {
+  /**
+   * Sends a message through the WebSocket connection.
+   * @param {string} data - The message data to send.
+   */
+  sendMessage (data) {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.error('Cannot send message: WebSocket is not open.');
       return;
@@ -186,13 +248,18 @@ export default class ChatApp extends DesktopWindow {
       data,
       username: this.username,
       channel: this.channel,
-      key: this.apiKey,
+      key: this.apiKey
     };
 
     this.socket.send(JSON.stringify(message));
   }
 
-  createMessageElement(message) {
+  /**
+   * Creates a message element for display in the chat.
+   * @param {object} message - The message object containing username and data.
+   * @returns {HTMLElement} The message element.
+   */
+  createMessageElement (message) {
     if (message.username.toLowerCase() === 'the server') {
       const serverMessageElement = document.createElement('p');
       serverMessageElement.classList.add('server-message');
@@ -216,7 +283,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  createUsernameChoiceMenu() {
+  /**
+   * Creates the username choice menu.
+   * @returns {HTMLElement} The username choice menu element.
+   */
+  createUsernameChoiceMenu () {
     const menu = document.createElement('div');
     menu.classList.add('container', 'menu');
 
@@ -238,7 +309,11 @@ export default class ChatApp extends DesktopWindow {
     return menu;
   }
 
-  createChannelChoiceMenu() {
+  /**
+   * Creates the channel choice menu.
+   * @returns {HTMLElement} The channel choice menu element.
+   */
+  createChannelChoiceMenu () {
     const menu = document.createElement('div');
     menu.classList.add('container', 'menu');
 
@@ -260,7 +335,11 @@ export default class ChatApp extends DesktopWindow {
     return menu;
   }
 
-  createChat() {
+  /**
+   * Creates the chat interface including message list, emoji picker, and input form.
+   * @returns {object} An object containing the message list element, input form element, and chat container.
+   */
+  createChat () {
     const chat = this.createChatContainer();
     const messageListElement = this.createMessageList();
     const emojiPickerElement = this.createEmojiPicker();
@@ -273,23 +352,35 @@ export default class ChatApp extends DesktopWindow {
     return {
       messageListElement,
       inputFormElement,
-      chat,
+      chat
     };
   }
 
-  createChatContainer() {
+  /**
+   * Creates the chat container element.
+   * @returns {HTMLElement} The chat container element.
+   */
+  createChatContainer () {
     const chat = document.createElement('div');
     chat.classList.add('container', 'chat');
     return chat;
   }
 
-  createMessageList() {
+  /**
+   * Creates the message list element.
+   * @returns {HTMLElement} The message list element.
+   */
+  createMessageList () {
     const messageListElement = document.createElement('div');
     messageListElement.classList.add('messages');
     return messageListElement;
   }
 
-  createEmojiPicker() {
+  /**
+   * Creates the emoji picker element.
+   * @returns {HTMLElement} The emoji picker element.
+   */
+  createEmojiPicker () {
     const emojiPicker = document.createElement('div');
     emojiPicker.classList.add('emoji-picker');
 
@@ -312,7 +403,11 @@ export default class ChatApp extends DesktopWindow {
     return emojiPicker;
   }
 
-  createInputForm() {
+  /**
+   * Creates the input form element for sending messages.
+   * @returns {HTMLElement} The input form element.
+   */
+  createInputForm () {
     const inputFormElement = document.createElement('form');
     inputFormElement.id = 'message-form';
     inputFormElement.classList.add('input-form');
@@ -345,7 +440,10 @@ export default class ChatApp extends DesktopWindow {
     return inputFormElement;
   }
 
-  connect() {
+  /**
+   * Establishes a WebSocket connection to the chat server.
+   */
+  connect () {
     this.socket = new WebSocket('wss://courselab.lnu.se/message-app/socket');
     this.socket.addEventListener('open', this.handleOpen.bind(this));
     this.socket.addEventListener('message', this.handleMessage.bind(this));
@@ -354,7 +452,10 @@ export default class ChatApp extends DesktopWindow {
     window.addEventListener('beforeunload', this.closeConnection.bind(this));
   }
 
-  handleOpen() {
+  /**
+   * Handles the WebSocket open event.
+   */
+  handleOpen () {
     console.log('Connection with the server established.');
     const storedMessages = JSON.parse(localStorage.getItem(this.channel));
     if (storedMessages) {
@@ -366,11 +467,18 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  scrollToBottom() {
+  /**
+   * Scrolls the message list to the bottom.
+   */
+  scrollToBottom () {
     this.messageListElement.scrollTop = this.messageListElement.scrollHeight;
   }
 
-  async handleMessage(event) {
+  /**
+   * Handles incoming WebSocket messages.
+   * @param {MessageEvent} event - The message event.
+   */
+  async handleMessage (event) {
     const message = JSON.parse(event.data);
     if (message.type !== 'heartbeat') {
       if (openai && this.filterProfanity) {
@@ -385,9 +493,9 @@ export default class ChatApp extends DesktopWindow {
                 'inappropriate, offensive, or explicit language, including but not limited' +
                 'to slurs, sexual content, or abusive language. Otherwise, respond strictly' +
                 'with "no". Do not provide any other response. Here is the message:\n' +
-                message.data,
-            },
-          ],
+                message.data
+            }
+          ]
         });
 
         if (completion.choices[0].message.content.toLowerCase() === 'yes') {
@@ -404,23 +512,34 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  handleClose() {
+  /**
+   * Handles the WebSocket close event.
+   */
+  handleClose () {
     console.log('Connection closed.');
     this.messages.push({
       data: 'You are disconnected!',
       type: 'notification',
-      username: 'The Server',
+      username: 'The Server'
     });
     localStorage.setItem(this.channel, JSON.stringify(this.messages));
     this.messages = [];
     this.socket = null;
   }
 
-  handleError(error) {
+  /**
+   * Handles WebSocket errors.
+   * @param {Event} error - The error event.
+   */
+  handleError (error) {
     console.error('Connection error:', error);
   }
 
-  closeConnection(event) {
+  /**
+   * Closes the WebSocket connection.
+   * @param {Event} [event] - The event that triggered the closure.
+   */
+  closeConnection (event) {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       if (event) {
         event.preventDefault();
@@ -430,7 +549,11 @@ export default class ChatApp extends DesktopWindow {
     }
   }
 
-  getStyles() {
+  /**
+   * Gets the styles for the chat application.
+   * @returns {string} The styles as a string.
+   */
+  getStyles () {
     return (
       super.getStyles() +
       `

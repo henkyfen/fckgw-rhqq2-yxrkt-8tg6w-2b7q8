@@ -1,7 +1,7 @@
 const baseIconsImagePath = './assets/icons';
 
 const DragManager = {
-  currentlyDraggedInstance: null,
+  currentlyDraggedInstance: null
 };
 
 window.addEventListener('mousemove', handleMouseMoveForDrag);
@@ -11,8 +11,9 @@ window.addEventListener('mouseup', stopDrag);
 /**
  * Stops the dragging operation by resetting the dragging state
  * of the currently dragged instance.
+ * Sets the currentlyDraggedInstance to null.
  */
-function stopDrag() {
+function stopDrag () {
   const instance = DragManager.currentlyDraggedInstance;
   if (instance) {
     instance.isDragging = false;
@@ -25,7 +26,7 @@ function stopDrag() {
  * Updates the position of the currently dragged instance.
  * @param {MouseEvent} event - The mouse move event.
  */
-function handleMouseMoveForDrag(event) {
+function handleMouseMoveForDrag (event) {
   const instance = DragManager.currentlyDraggedInstance;
 
   if (!instance || !instance.isDragging) return;
@@ -41,7 +42,7 @@ function handleMouseMoveForDrag(event) {
 }
 
 const ResizeManager = {
-  currentlyResizedInstance: null,
+  currentlyResizedInstance: null
 };
 
 window.addEventListener('mousemove', handleMouseMoveForResize);
@@ -51,8 +52,9 @@ window.addEventListener('mouseup', stopResize);
 /**
  * Stops the resizing operation by resetting the resizing state
  * of the currently resized instance.
+ * Sets the currentlyResizedInstance to null.
  */
-function stopResize() {
+function stopResize () {
   const instance = ResizeManager.currentlyResizedInstance;
   if (instance) {
     instance.isResizingX = false;
@@ -66,7 +68,7 @@ function stopResize() {
  * Updates the dimensions of the currently resized instance.
  * @param {MouseEvent} event - The mouse move event.
  */
-function handleMouseMoveForResize(event) {
+function handleMouseMoveForResize (event) {
   const instance = ResizeManager.currentlyResizedInstance;
   if (!instance) return;
 
@@ -88,9 +90,9 @@ function handleMouseMoveForResize(event) {
 }
 
 /**
- * Represents a desktop window component that can be dragged, resized, minimized, and maximized.
+ * @class DesktopWindow
+ * @classdesc Represents a desktop window component that can be dragged, resized, minimized, and maximized.
  * This class extends the HTMLElement and provides custom behavior for window management.
- * @class
  * @augments HTMLElement
  */
 export default class DesktopWindow extends HTMLElement {
@@ -110,7 +112,7 @@ export default class DesktopWindow extends HTMLElement {
    * Called when the element is added to the document.
    * Initializes the component by rendering and adding event listeners.
    */
-  connectedCallback() {
+  connectedCallback () {
     this.dataId = this.dataset.windowId;
     this.isResizable = this.getAttribute('resizable') !== 'false';
     this.render();
@@ -120,7 +122,7 @@ export default class DesktopWindow extends HTMLElement {
   /**
    * Renders the window's HTML structure and appends it to the shadow DOM.
    */
-  render() {
+  render () {
     this.shadowRoot.innerHTML = this.getStyles();
     const container = this.createWindowContainer();
     this.body = this.createWindowBody();
@@ -138,7 +140,7 @@ export default class DesktopWindow extends HTMLElement {
    * Creates the window container element with title bar and resizers.
    * @returns {HTMLElement} The window container element.
    */
-  createWindowContainer() {
+  createWindowContainer () {
     const container = document.createElement('div');
     container.classList.add('window');
     container.innerHTML = `
@@ -161,7 +163,7 @@ export default class DesktopWindow extends HTMLElement {
    * Creates the window body element.
    * @returns {HTMLElement} The window body element.
    */
-  createWindowBody() {
+  createWindowBody () {
     const body = document.createElement('div');
     body.classList.add('window__body');
     return body;
@@ -171,7 +173,7 @@ export default class DesktopWindow extends HTMLElement {
    * Retrieves the window title from the element's attributes.
    * @returns {string} The window title.
    */
-  getWindowTitle() {
+  getWindowTitle () {
     return this.getAttribute('title') || 'Untitled Window';
   }
 
@@ -180,7 +182,7 @@ export default class DesktopWindow extends HTMLElement {
    * This method should be implemented in a subclass.
    * @returns {HTMLElement|null} The control panel element or null.
    */
-  createControlPanel() {
+  createControlPanel () {
     /*
      * This method must be implemented in a subclass.
      * Here's an example implementation:
@@ -215,7 +217,7 @@ export default class DesktopWindow extends HTMLElement {
   /**
    * Adds event listeners for the window's interactive elements.
    */
-  addEventListeners() {
+  addEventListeners () {
     const titleBar = this.shadowRoot.querySelector('.window__title-bar');
     titleBar.addEventListener('mousedown', this.handleTitleBarMouseDown.bind(this));
     titleBar.addEventListener('click', this.handleTitleBarClick.bind(this));
@@ -228,7 +230,7 @@ export default class DesktopWindow extends HTMLElement {
    * Handles click events on the title bar buttons.
    * @param {MouseEvent} event - The click event.
    */
-  handleTitleBarClick(event) {
+  handleTitleBarClick (event) {
     const target = event.target;
 
     switch (target.getAttribute('aria-label')) {
@@ -248,11 +250,11 @@ export default class DesktopWindow extends HTMLElement {
    * Handles the close button click event.
    * Dispatches a custom event to close the window.
    */
-  handleCloseClick() {
+  handleCloseClick () {
     const closeEvent = new CustomEvent('closeWindow', {
       detail: { id: this.dataId },
       bubbles: true,
-      composed: true,
+      composed: true
     });
     this.dispatchEvent(closeEvent);
   }
@@ -261,7 +263,7 @@ export default class DesktopWindow extends HTMLElement {
    * Handles the maximize button click event.
    * Toggles the maximized state of the window.
    */
-  handleMaximizeClick() {
+  handleMaximizeClick () {
     this.classList.toggle('maximized');
   }
 
@@ -269,7 +271,7 @@ export default class DesktopWindow extends HTMLElement {
    * Handles the minimize button click event.
    * Hides the window by setting its display to 'none'.
    */
-  handleMinimizeClick() {
+  handleMinimizeClick () {
     this.style.display = 'none';
   }
 
@@ -277,7 +279,7 @@ export default class DesktopWindow extends HTMLElement {
    * Handles click events on the control panel.
    * @param {MouseEvent} event - The click event.
    */
-  handleControlPanelClick(event) {
+  handleControlPanelClick (event) {
     const target = event.target;
     const isActivator = target.classList.contains('window__dropdown-activator');
     const isChoice = target.classList.contains('window__dropdown-choice');
@@ -296,7 +298,7 @@ export default class DesktopWindow extends HTMLElement {
    * Toggles the visibility of a dropdown menu.
    * @param {HTMLElement} activator - The dropdown activator element.
    */
-  toggleDropdown(activator) {
+  toggleDropdown (activator) {
     const content = activator.parentNode.querySelector('.window__dropdown-content');
     const isContentVisible = content.style.display === 'block';
     this.closeAllDropdowns(content);
@@ -308,7 +310,7 @@ export default class DesktopWindow extends HTMLElement {
    * Closes a specific dropdown menu.
    * @param {HTMLElement} dropdownContent - The dropdown content element.
    */
-  closeDropdown(dropdownContent) {
+  closeDropdown (dropdownContent) {
     dropdownContent.style.display = 'none';
     dropdownContent.parentNode.classList.remove('active');
   }
@@ -317,7 +319,7 @@ export default class DesktopWindow extends HTMLElement {
    * Closes all dropdown menus except the specified one.
    * @param {HTMLElement|null} excludeContent - The dropdown content to exclude from closing.
    */
-  closeAllDropdowns(excludeContent = null) {
+  closeAllDropdowns (excludeContent = null) {
     const allDropdownContents = this.shadowRoot.querySelectorAll('.window__dropdown-content');
     allDropdownContents.forEach((dropdownContent) => {
       if (dropdownContent !== excludeContent) {
@@ -329,9 +331,10 @@ export default class DesktopWindow extends HTMLElement {
 
   /**
    * Handles the mousedown event on the title bar for dragging.
+   * Sets the instance as the currently dragged instance.
    * @param {MouseEvent} event - The mousedown event.
    */
-  handleTitleBarMouseDown(event) {
+  handleTitleBarMouseDown (event) {
     if (event.target.tagName !== 'BUTTON') {
       this.isDragging = true;
       this.offsetX = event.offsetX;
@@ -345,9 +348,10 @@ export default class DesktopWindow extends HTMLElement {
 
   /**
    * Handles the mousedown event on the resizers for resizing.
+   * Sets the instance as the currently resized instance.
    * @param {MouseEvent} event - The mousedown event.
    */
-  handleResizerMouseDown(event) {
+  handleResizerMouseDown (event) {
     const target = event.target;
     const isBottomResizer = target.classList.contains('window__resizer_bottom');
     const isRightResizer = target.classList.contains('window__resizer_right');
@@ -364,9 +368,10 @@ export default class DesktopWindow extends HTMLElement {
 
   /**
    * Handles the custom window focus change event.
+   * Updates the focus state of the window.
    * @param {CustomEvent} event - The custom event with focus details.
    */
-  handleFocusChange(event) {
+  handleFocusChange (event) {
     const focusedWindowId = event.detail.focusedWindowId;
     this.isFocused = this.dataset.windowId === focusedWindowId;
   }
@@ -375,7 +380,7 @@ export default class DesktopWindow extends HTMLElement {
    * Returns the styles for the window component.
    * @returns {string} The styles as a string.
    */
-  getStyles() {
+  getStyles () {
     return `
       <style>
         :host {

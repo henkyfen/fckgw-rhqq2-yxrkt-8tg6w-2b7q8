@@ -1,5 +1,11 @@
 const baseImagePath = './assets/images';
 
+/**
+ * @class PersonalWebDesktop
+ * @classdesc A custom HTML element representing a personal web desktop environment.
+ * Manages the creation, positioning, and interaction of desktop windows.
+ * @augments HTMLElement
+ */
 export default class PersonalWebDesktop extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
@@ -10,12 +16,21 @@ export default class PersonalWebDesktop extends HTMLElement {
   highestZIndex = 1;
   taskbar;
 
-  connectedCallback() {
+  /**
+   * Lifecycle method called when the element is added to the document.
+   * Initializes the rendering and event listeners.
+   */
+  connectedCallback () {
     this.render();
     this.addEventListeners();
   }
 
-  render() {
+  /**
+   * Renders the personal web desktop interface.
+   * Sets up the main desktop structure and taskbar.
+   * @private
+   */
+  render () {
     this.shadowRoot.innerHTML = this.getStyles();
 
     const personalWebDesktop = document.createElement('div');
@@ -31,14 +46,24 @@ export default class PersonalWebDesktop extends HTMLElement {
     this.shadowRoot.appendChild(personalWebDesktop);
   }
 
-  addEventListeners() {
+  /**
+   * Adds event listeners to the desktop component.
+   * Handles interactions like icon double-clicks and window management.
+   * @private
+   */
+  addEventListeners () {
     this.shadowRoot.addEventListener('iconDoubleClick', this.handleIconDoubleClick.bind(this));
     this.shadowRoot.addEventListener('clickTab', this.handleClickTab.bind(this));
     this.shadowRoot.addEventListener('closeWindow', this.handleWindowClose.bind(this));
     this.shadowRoot.addEventListener('mousedown', this.handleWindowClick.bind(this));
   }
 
-  handleWindowClick(event) {
+  /**
+   * Handles window click events to bring the clicked window to the front.
+   * @param {Event} event - The mousedown event.
+   * @private
+   */
+  handleWindowClick (event) {
     const windowId = event.target.dataset.windowId;
 
     if (!windowId) return;
@@ -49,7 +74,12 @@ export default class PersonalWebDesktop extends HTMLElement {
     }
   }
 
-  handleWindowClose(event) {
+  /**
+   * Handles window close events to remove the window from the desktop.
+   * @param {CustomEvent} event - The closeWindow event.
+   * @private
+   */
+  handleWindowClose (event) {
     const { id } = event.detail;
     const window = this.openedWindows.get(id);
 
@@ -61,13 +91,18 @@ export default class PersonalWebDesktop extends HTMLElement {
     const removeTabEvent = new CustomEvent('removeTab', {
       detail: { id },
       bubbles: false,
-      composed: true,
+      composed: true
     });
 
     this.taskbar.dispatchEvent(removeTabEvent);
   }
 
-  handleIconDoubleClick(event) {
+  /**
+   * Handles icon double-click events to create and display a new window.
+   * @param {CustomEvent} event - The iconDoubleClick event.
+   * @private
+   */
+  handleIconDoubleClick (event) {
     const { windowTitle, windowTag, isResizable } = event.detail;
 
     const { windowId, desktopWindow } = this.createWindow(windowTitle, windowTag, isResizable);
@@ -81,13 +116,18 @@ export default class PersonalWebDesktop extends HTMLElement {
     const customEvent = new CustomEvent('updateTaskbar', {
       detail: { windowTitle, windowId },
       bubbles: false,
-      composed: true,
+      composed: true
     });
 
     this.taskbar.dispatchEvent(customEvent);
   }
 
-  handleClickTab(event) {
+  /**
+   * Handles tab click events to toggle window visibility.
+   * @param {CustomEvent} event - The clickTab event.
+   * @private
+   */
+  handleClickTab (event) {
     const { windowId } = event.detail;
     const desktopWindow = this.openedWindows.get(windowId);
 
@@ -104,7 +144,15 @@ export default class PersonalWebDesktop extends HTMLElement {
     }
   }
 
-  createWindow(windowTitle, tagName, isResizable) {
+  /**
+   * Creates a new window element with specified attributes.
+   * @param {string} windowTitle - The title of the window.
+   * @param {string} tagName - The tag name for the window element.
+   * @param {boolean} isResizable - Whether the window is resizable.
+   * @returns {object} An object containing the windowId and the desktopWindow element.
+   * @private
+   */
+  createWindow (windowTitle, tagName, isResizable) {
     const desktopWindow = tagName
       ? document.createElement(tagName)
       : document.createElement('desktop-window');
@@ -119,11 +167,21 @@ export default class PersonalWebDesktop extends HTMLElement {
     return { windowId, desktopWindow };
   }
 
-  generateUniqueId() {
+  /**
+   * Generates a unique identifier for a window.
+   * @returns {string} A unique window ID.
+   * @private
+   */
+  generateUniqueId () {
     return Math.random().toString(36).substring(2, 8);
   }
 
-  positionWindow(element) {
+  /**
+   * Positions a window element on the desktop.
+   * @param {HTMLElement} element - The window element to position.
+   * @private
+   */
+  positionWindow (element) {
     setTimeout(() => {
       this.lastOpenedX += 20;
       this.lastOpenedY += 28;
@@ -144,18 +202,28 @@ export default class PersonalWebDesktop extends HTMLElement {
     }, 0);
   }
 
-  bringWindowToFront(desktopWindow) {
+  /**
+   * Brings a window to the front by increasing its z-index.
+   * @param {HTMLElement} desktopWindow - The window element to bring to the front.
+   * @private
+   */
+  bringWindowToFront (desktopWindow) {
     this.currentlyFocusedWindow = desktopWindow;
     this.highestZIndex += 1;
     desktopWindow.style.zIndex = this.highestZIndex;
 
     const focusEvent = new CustomEvent('windowFocusChange', {
-      detail: { focusedWindowId: desktopWindow.dataset.windowId },
+      detail: { focusedWindowId: desktopWindow.dataset.windowId }
     });
     window.dispatchEvent(focusEvent);
   }
 
-  getStyles() {
+  /**
+   * Returns the styles for the personal web desktop.
+   * @returns {string} The styles as a string.
+   * @private
+   */
+  getStyles () {
     return `
       <style>
         .personal-web-desktop {

@@ -1,9 +1,10 @@
 /**
- * QuizResult is a custom HTML element that displays the result of a quiz,
- * including the user's performance and options to restart or view the scoreboard.
+ * @class QuizResult
+ * @classdesc A custom HTML element that displays the result of a quiz.
+ * It includes the user's performance details and provides options to restart the quiz or view the scoreboard.
+ * @augments HTMLElement
  */
 export default class QuizResult extends HTMLElement {
-  /** @private */
   shadowRoot = this.attachShadow({ mode: 'open' });
   quizAppElement;
 
@@ -11,7 +12,7 @@ export default class QuizResult extends HTMLElement {
    * Specifies the attributes to observe for changes.
    * @returns {Array<string>} The list of attributes to observe.
    */
-  static get observedAttributes() {
+  static get observedAttributes () {
     return ['username', 'status', 'elapsed-time', 'result-message'];
   }
 
@@ -22,7 +23,7 @@ export default class QuizResult extends HTMLElement {
    * @param {string} oldValue - The old value of the attribute.
    * @param {string} newValue - The new value of the attribute.
    */
-  attributeChangedCallback(name, oldValue, newValue) {
+  attributeChangedCallback (name, oldValue, newValue) {
     if (oldValue !== newValue) {
       // Convert kebab-case to camelCase for JavaScript
       const propertyName = name.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
@@ -36,7 +37,7 @@ export default class QuizResult extends HTMLElement {
    * Constructs the QuizResult component, initializes rendering and event handlers.
    * @param {HTMLElement} quizAppElement - The parent quiz app element.
    */
-  constructor(quizAppElement) {
+  constructor (quizAppElement) {
     super();
     this.quizAppElement = quizAppElement;
     this.render();
@@ -48,7 +49,7 @@ export default class QuizResult extends HTMLElement {
    * Lifecycle method called when the element is added to the document.
    * Updates local storage if the quiz is completed and sets up a global keydown event listener.
    */
-  connectedCallback() {
+  connectedCallback () {
     if (this.status === 'done' && this.username && this.elapsedTime) {
       this.updateLocalStorage();
     }
@@ -59,7 +60,7 @@ export default class QuizResult extends HTMLElement {
    * Lifecycle method called when the element is removed from the document.
    * Cleans up the global keydown event listener.
    */
-  disconnectedCallback() {
+  disconnectedCallback () {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
@@ -68,7 +69,7 @@ export default class QuizResult extends HTMLElement {
    * @param {KeyboardEvent} event - The keydown event.
    * @private
    */
-  handleKeyDown(event) {
+  handleKeyDown (event) {
     if (event.key === 'r' && this.quizAppElement.isFocused) {
       this.dispatchEvent(new CustomEvent('restart-quiz'));
     }
@@ -79,7 +80,7 @@ export default class QuizResult extends HTMLElement {
    * Stores the username and elapsed time in seconds.
    * @private
    */
-  updateLocalStorage() {
+  updateLocalStorage () {
     const scores = JSON.parse(localStorage.getItem('quiz-scores')) || [];
     scores.push({ name: this.username, time: this.elapsedTime / 1000 });
     localStorage.setItem('quiz-scores', JSON.stringify(scores));
@@ -90,7 +91,7 @@ export default class QuizResult extends HTMLElement {
    * Combines styles and template to display the quiz result.
    * @private
    */
-  render() {
+  render () {
     this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
   }
 
@@ -99,7 +100,7 @@ export default class QuizResult extends HTMLElement {
    * Listens for clicks on "Try Again" and "Scoreboard" buttons.
    * @private
    */
-  addEventListeners() {
+  addEventListeners () {
     this.shadowRoot.getElementById('tryAgainButton').addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('restart-quiz'));
     });
@@ -108,8 +109,8 @@ export default class QuizResult extends HTMLElement {
         new CustomEvent('navigate-to', {
           detail: { view: 'scoreboard' },
           bubbles: true,
-          composed: true,
-        }),
+          composed: true
+        })
       );
     });
   }
@@ -120,7 +121,7 @@ export default class QuizResult extends HTMLElement {
    * @returns {string} The CSS styles string.
    * @private
    */
-  getStyles() {
+  getStyles () {
     const parentStyles = this.quizAppElement.getStyles();
     const filteredStyles = parentStyles.replace(/:host\s*{[^}]*}/g, '');
     return (
@@ -162,7 +163,7 @@ export default class QuizResult extends HTMLElement {
    * @returns {string} The HTML template string.
    * @private
    */
-  getTemplate() {
+  getTemplate () {
     return `
       <div class="result">
         <h2>

@@ -1,9 +1,10 @@
 /**
- * QuizScoreboard is a custom HTML element that displays the scoreboard
- * of quiz results, showing a list of users and their performance times.
+ * @class QuizScoreboard
+ * @classdesc A custom HTML element for displaying the quiz scoreboard,
+ * which includes a list of users and their performance times.
+ * @augments HTMLElement
  */
 export default class QuizScoreboard extends HTMLElement {
-  /** @private */
   shadowRoot = this.attachShadow({ mode: 'open' });
   quizAppElement;
 
@@ -11,7 +12,7 @@ export default class QuizScoreboard extends HTMLElement {
    * Constructs the QuizScoreboard component, initializes rendering and event handlers.
    * @param {HTMLElement} quizAppElement - The parent quiz app element.
    */
-  constructor(quizAppElement) {
+  constructor (quizAppElement) {
     super();
     this.quizAppElement = quizAppElement;
     this.render();
@@ -22,7 +23,7 @@ export default class QuizScoreboard extends HTMLElement {
    * with styles and template, and populates the scoreboard with data.
    * @private
    */
-  render() {
+  render () {
     this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
     this.populateScoreBoard();
   }
@@ -32,7 +33,7 @@ export default class QuizScoreboard extends HTMLElement {
    * It sorts the scores and appends them to the table body.
    * @private
    */
-  populateScoreBoard() {
+  populateScoreBoard () {
     const scores = this.getScoresFromLocalStorage();
     const sortedScores = this.sortScores(scores);
     const scoreTableBody = this.shadowRoot.getElementById('score-table-body');
@@ -53,7 +54,7 @@ export default class QuizScoreboard extends HTMLElement {
    * @returns {Array} An array of score objects.
    * @private
    */
-  getScoresFromLocalStorage() {
+  getScoresFromLocalStorage () {
     return JSON.parse(localStorage.getItem('quiz-scores')) || [];
   }
 
@@ -63,7 +64,7 @@ export default class QuizScoreboard extends HTMLElement {
    * @returns {Array} The sorted array of score objects.
    * @private
    */
-  sortScores(scores) {
+  sortScores (scores) {
     return scores.sort((a, b) => a.time - b.time);
   }
 
@@ -72,7 +73,7 @@ export default class QuizScoreboard extends HTMLElement {
    * @returns {string} The HTML template string.
    * @private
    */
-  getTemplate() {
+  getTemplate () {
     return `
       <div class="scoreboard">
         <h2 class="scoreboard__title">Scoreboard</h2>
@@ -98,7 +99,7 @@ export default class QuizScoreboard extends HTMLElement {
    * @returns {string} The CSS styles string.
    * @private
    */
-  getStyles() {
+  getStyles () {
     const parentStyles = this.quizAppElement.getStyles();
     const filteredStyles = parentStyles.replace(/:host\s*{[^}]*}/g, '');
     return (

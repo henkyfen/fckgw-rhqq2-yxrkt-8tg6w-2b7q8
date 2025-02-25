@@ -1,16 +1,28 @@
 const baseDesktopIconsImagePath = './assets/images/desktop-icons';
 
+/**
+ * @class DesktopIcon
+ * @classdesc Represents a desktop icon element with customizable attributes for name, target window, and resizability.
+ * @augments HTMLElement
+ */
 export default class DesktopIcon extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
   name;
 
-  connectedCallback() {
+  /**
+   * Lifecycle method called when the component is added to the DOM.
+   * Initializes the rendering and event listeners.
+   */
+  connectedCallback () {
     this.render();
     this.addEventListeners();
   }
 
-  render() {
+  /**
+   * Renders the desktop icon element with its attributes and styles.
+   */
+  render () {
     this.shadowRoot.innerHTML = this.getStyles();
 
     const iconSrc =
@@ -35,24 +47,35 @@ export default class DesktopIcon extends HTMLElement {
     this.shadowRoot.appendChild(cell);
   }
 
-  addEventListeners() {
+  /**
+   * Adds event listeners for the desktop icon interactions.
+   */
+  addEventListeners () {
     this.addEventListener('dblclick', this.handleDoubleClick.bind(this));
   }
 
-  handleDoubleClick() {
+  /**
+   * Handles the double-click event on the desktop icon.
+   * Dispatches a custom event with details about the icon.
+   */
+  handleDoubleClick () {
     const event = new CustomEvent('iconDoubleClick', {
       detail: {
         windowTitle: this.name,
         windowTag: this.targetTagName,
-        isResizable: this.isResizable,
+        isResizable: this.isResizable
       },
       bubbles: true,
-      composed: true,
+      composed: true
     });
     this.dispatchEvent(event);
   }
 
-  getStyles() {
+  /**
+   * Returns the styles for the desktop icon element.
+   * @returns {string} The styles as a string.
+   */
+  getStyles () {
     return `
       <style>
         .desktop-icon {

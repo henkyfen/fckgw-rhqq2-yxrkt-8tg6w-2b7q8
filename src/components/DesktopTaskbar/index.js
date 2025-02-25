@@ -1,16 +1,29 @@
+/**
+ * @class DesktopTaskbar
+ * @classdesc Represents a custom HTML element for a desktop taskbar.
+ * @augments HTMLElement
+ */
 export default class DesktopTaskbar extends HTMLElement {
   shadowRoot = this.attachShadow({ mode: 'open' });
 
   openedTabs = new Map();
 
-  connectedCallback() {
+  /**
+   * Lifecycle method called when the component is added to the DOM.
+   * Initializes the taskbar by rendering it, adding event listeners, and starting the time update.
+   */
+  connectedCallback () {
     this.render();
     this.addEventListeners();
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
   }
 
-  render() {
+  /**
+   * Renders the taskbar UI components and appends them to the shadow DOM.
+   * @private
+   */
+  render () {
     this.shadowRoot.innerHTML = this.getStyles();
 
     const taskbar = document.createElement('div');
@@ -36,12 +49,21 @@ export default class DesktopTaskbar extends HTMLElement {
     this.shadowRoot.appendChild(taskbar);
   }
 
-  addEventListeners() {
+  /**
+   * Adds event listeners for taskbar events.
+   * @private
+   */
+  addEventListeners () {
     this.addEventListener('updateTaskbar', this.handleUpdateTaskbar.bind(this));
     this.addEventListener('removeTab', this.handleRemoveTab.bind(this));
   }
 
-  handleUpdateTaskbar(event) {
+  /**
+   * Handles the 'updateTaskbar' event to add a new tab to the taskbar.
+   * @param {CustomEvent} event - The event containing details about the new tab.
+   * @private
+   */
+  handleUpdateTaskbar (event) {
     const taskbar = this.shadowRoot.querySelector('.opened-tabs');
 
     const newTab = document.createElement('div');
@@ -54,25 +76,39 @@ export default class DesktopTaskbar extends HTMLElement {
     taskbar.appendChild(newTab);
   }
 
-  handleTabClick(event) {
+  /**
+   * Handles the click event on a tab to dispatch a 'clickTab' event.
+   * @param {MouseEvent} event - The click event on the tab.
+   * @private
+   */
+  handleTabClick (event) {
     const windowId = event.target.dataset.windowId;
 
     const clickTab = new CustomEvent('clickTab', {
       detail: { windowId },
       bubbles: true,
-      composed: true,
+      composed: true
     });
     this.dispatchEvent(clickTab);
   }
 
-  handleRemoveTab(event) {
+  /**
+   * Handles the 'removeTab' event to remove a tab from the taskbar.
+   * @param {CustomEvent} event - The event containing the ID of the tab to remove.
+   * @private
+   */
+  handleRemoveTab (event) {
     const tabId = event.detail.id;
     const tab = this.openedTabs.get(tabId);
     tab.remove();
     this.openedTabs.delete(tabId);
   }
 
-  updateTime() {
+  /**
+   * Updates the displayed time on the taskbar.
+   * @private
+   */
+  updateTime () {
     const timeElement = this.shadowRoot.querySelector('.time');
     const now = new Date();
     const options = { hour: '2-digit', minute: '2-digit' };
@@ -80,7 +116,12 @@ export default class DesktopTaskbar extends HTMLElement {
     timeElement.textContent = timeString;
   }
 
-  getStyles() {
+  /**
+   * Returns the CSS styles for the taskbar.
+   * @returns {string} The CSS styles as a string.
+   * @private
+   */
+  getStyles () {
     return `
     <style>
       * {

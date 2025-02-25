@@ -1,9 +1,10 @@
 /**
- * MemoryGameScoreboard is a custom HTML element that displays the scoreboard
- * of memory game results, showing a list of users and their performance times.
+ * @class MemoryGameScoreboard
+ * @classdesc A custom HTML element that displays the scoreboard for the memory game,
+ * showing a list of users and their performance times.
+ * @augments HTMLElement
  */
 export default class MemoryGameScoreboard extends HTMLElement {
-  /** @private */
   shadowRoot = this.attachShadow({ mode: 'open' });
   memoryGameElement;
 
@@ -13,7 +14,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * Gets the current state of the scoreboard.
    * @returns {string} The current state.
    */
-  get state() {
+  get state () {
     return this._state;
   }
 
@@ -21,7 +22,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * Sets the state of the scoreboard and triggers a render.
    * @param {string} value - The new state value.
    */
-  set state(value) {
+  set state (value) {
     this._state = value;
     this.render(value);
   }
@@ -30,7 +31,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * Constructs the MemoryGameScoreboard component, initializes rendering and event handlers.
    * @param {HTMLElement} memoryGameElement - The parent MemoryGame element.
    */
-  constructor(memoryGameElement) {
+  constructor (memoryGameElement) {
     super();
     this.memoryGameElement = memoryGameElement;
   }
@@ -39,7 +40,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * Lifecycle method called when the element is added to the document.
    * Renders the initial menu and sets up event listeners.
    */
-  connectedCallback() {
+  connectedCallback () {
     this.render('menu');
     this.addEventListeners();
   }
@@ -49,7 +50,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * Listens for click events to handle button interactions.
    * @private
    */
-  addEventListeners() {
+  addEventListeners () {
     this.shadowRoot.addEventListener('click', this.handleButtonClick.bind(this));
   }
 
@@ -58,7 +59,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * @param {Event} event - The click event.
    * @private
    */
-  handleButtonClick(event) {
+  handleButtonClick (event) {
     const size = event.target.dataset.size;
     if (size) {
       this.size = size;
@@ -72,7 +73,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * @param {string} state - The current state to render.
    * @private
    */
-  render(state) {
+  render (state) {
     this.shadowRoot.innerHTML = this.getStyles();
     switch (state) {
       case 'menu':
@@ -92,7 +93,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * @returns {HTMLElement} The menu element.
    * @private
    */
-  createMenu() {
+  createMenu () {
     const menu = document.createElement('div');
     menu.classList.add('menu');
     menu.innerHTML = `
@@ -113,7 +114,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * @returns {HTMLElement} The scoreboard element.
    * @private
    */
-  createScoreboard() {
+  createScoreboard () {
     const scoreboard = document.createElement('div');
     scoreboard.classList.add('scoreboard');
     scoreboard.innerHTML = `
@@ -142,7 +143,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * It sorts the scores and appends them to the table body.
    * @private
    */
-  populateScoreBoard() {
+  populateScoreBoard () {
     const scores = this.getScoresFromLocalStorage();
     const sortedScores = this.sortScores(scores);
     const scoreTableBody = this.shadowRoot.getElementById('score-table-body');
@@ -161,21 +162,21 @@ export default class MemoryGameScoreboard extends HTMLElement {
 
   /**
    * Retrieves scores from local storage.
-   * @returns {Array<Object>} An array of score objects.
+   * @returns {Array<object>} An array of score objects.
    * @private
    */
-  getScoresFromLocalStorage() {
+  getScoresFromLocalStorage () {
     return JSON.parse(localStorage.getItem(`memory-game-scores-${this.size}`)) || [];
   }
 
   /**
    * Sorts an array of scores in ascending order based on attempts.
    * If attempts are equal, sorts by time.
-   * @param {Array<Object>} scores - The array of score objects to sort.
-   * @returns {Array<Object>} The sorted array of score objects.
+   * @param {Array<object>} scores - The array of score objects to sort.
+   * @returns {Array<object>} The sorted array of score objects.
    * @private
    */
-  sortScores(scores) {
+  sortScores (scores) {
     return scores.sort((a, b) => {
       if (a.attempts === b.attempts) {
         return a.time - b.time;
@@ -189,7 +190,7 @@ export default class MemoryGameScoreboard extends HTMLElement {
    * @returns {string} The CSS styles string.
    * @private
    */
-  getStyles() {
+  getStyles () {
     const parentStyles = this.memoryGameElement.getStyles();
     const filteredStyles = parentStyles.replace(/:host\s*{[^}]*}/g, '');
     return (

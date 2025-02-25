@@ -5,8 +5,10 @@ import QuizResult from './QuizResult';
 import QuizScoreboard from './QuizScoreboard';
 
 /**
- * Quiz is a custom HTML element that manages the quiz flow,
+ * @class Quiz
+ * @classdesc A custom HTML element that manages the quiz flow,
  * including the menu, quiz content, and result views.
+ * @augments DesktopWindow
  */
 export default class Quiz extends DesktopWindow {
   _state;
@@ -15,7 +17,7 @@ export default class Quiz extends DesktopWindow {
    * Gets the current state of the quiz.
    * @returns {object} The current state object.
    */
-  get state() {
+  get state () {
     return this._state;
   }
 
@@ -23,7 +25,7 @@ export default class Quiz extends DesktopWindow {
    * Sets the state of the quiz and triggers a re-render.
    * @param {object} value - The new state object to set.
    */
-  set state(value) {
+  set state (value) {
     this._state = value;
     this.renderBody(value);
   }
@@ -33,7 +35,7 @@ export default class Quiz extends DesktopWindow {
    * @param {object} newState - The new state to merge with the current state.
    * @private
    */
-  updateState(newState) {
+  updateState (newState) {
     this.state = { ...this.state, ...newState };
   }
 
@@ -41,18 +43,18 @@ export default class Quiz extends DesktopWindow {
    * Lifecycle method called when the element is added to the document.
    * Initializes the state of the quiz component with default values.
    */
-  connectedCallback() {
+  connectedCallback () {
     super.connectedCallback();
     this.state = {
       currentView: 'menu',
       username: '',
       startTime: null,
       endTime: null,
-      resultMessage: '',
+      resultMessage: ''
     };
   }
 
-  createControlPanel() {
+  createControlPanel () {
     const controlPanel = document.createElement('div');
     controlPanel.classList.add('window__control-panel');
 
@@ -75,7 +77,7 @@ export default class Quiz extends DesktopWindow {
    * Renders the body of the quiz component based on the current state.
    * @param {object} state - The current state of the quiz.
    */
-  renderBody(state) {
+  renderBody (state) {
     const container = document.createElement('div');
     container.className = 'quiz-container';
     const component = this.getCurrentView(state.currentView);
@@ -83,12 +85,12 @@ export default class Quiz extends DesktopWindow {
     this.body.replaceChildren(container);
   }
 
-  addEventListeners() {
+  addEventListeners () {
     super.addEventListeners();
     this.controlPanel.addEventListener('click', this.handleClick.bind(this));
   }
 
-  handleClick(event) {
+  handleClick (event) {
     const action = event.target.dataset.action;
     switch (action) {
       case 'back-to-menu':
@@ -105,7 +107,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {HTMLElement} The component corresponding to the current view.
    * @private
    */
-  getCurrentView() {
+  getCurrentView () {
     switch (this.state.currentView) {
       case 'menu':
         return this.createMenuComponent();
@@ -127,7 +129,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {QuizMenu} The menu component.
    * @private
    */
-  createMenuComponent() {
+  createMenuComponent () {
     const menu = new QuizMenu(this);
     menu.addEventListener('start-quiz', this.handleStartQuiz.bind(this));
     return menu;
@@ -139,12 +141,12 @@ export default class Quiz extends DesktopWindow {
    * @param {CustomEvent} event - The event object containing the username detail.
    * @private
    */
-  handleStartQuiz(event) {
+  handleStartQuiz (event) {
     const { username } = event.detail;
     this.updateState({
       username,
       currentView: 'content',
-      startTime: new Date(),
+      startTime: new Date()
     });
   }
 
@@ -153,7 +155,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {QuizContent} The content component.
    * @private
    */
-  createContentComponent() {
+  createContentComponent () {
     const content = new QuizContent(this);
     content.setAttribute('username', this.state.username);
     content.addEventListener('finish-quiz', this.handleFinishQuiz.bind(this));
@@ -167,10 +169,10 @@ export default class Quiz extends DesktopWindow {
    * @param {CustomEvent} event - The event object containing the end time detail.
    * @private
    */
-  handleFailQuiz(event) {
+  handleFailQuiz (event) {
     const newState = {
       currentView: 'failed',
-      endTime: event.detail.endTime,
+      endTime: event.detail.endTime
     };
     this.updateState(newState);
   }
@@ -181,11 +183,11 @@ export default class Quiz extends DesktopWindow {
    * @param {CustomEvent} event - The event object containing the end time and result message details.
    * @private
    */
-  handleFinishQuiz(event) {
+  handleFinishQuiz (event) {
     const newState = {
       currentView: 'done',
       endTime: event.detail.endTime,
-      resultMessage: event.detail.resultMessage,
+      resultMessage: event.detail.resultMessage
     };
     this.updateState(newState);
   }
@@ -196,7 +198,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {QuizResult} The result component.
    * @private
    */
-  createResultComponent(status) {
+  createResultComponent (status) {
     const result = new QuizResult(this);
     result.setAttribute('username', this.state.username);
     result.setAttribute('status', status);
@@ -212,10 +214,10 @@ export default class Quiz extends DesktopWindow {
    * and updating the start time to the current time.
    * @private
    */
-  handleRestartQuiz() {
+  handleRestartQuiz () {
     this.updateState({
       currentView: 'content',
-      startTime: new Date(),
+      startTime: new Date()
     });
   }
 
@@ -225,7 +227,7 @@ export default class Quiz extends DesktopWindow {
    * @param {CustomEvent} event - The event object containing the view to navigate to.
    * @private
    */
-  handleNavigateTo(event) {
+  handleNavigateTo (event) {
     const view = event.detail.view;
     if (view) {
       this.updateState({ currentView: view });
@@ -237,7 +239,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {QuizScoreboard} The scoreboard component.
    * @private
    */
-  createScoreboardComponent() {
+  createScoreboardComponent () {
     return new QuizScoreboard(this);
   }
 
@@ -246,7 +248,7 @@ export default class Quiz extends DesktopWindow {
    * @returns {string} The CSS styles string.
    * @private
    */
-  getStyles() {
+  getStyles () {
     return (
       super.getStyles() +
       `

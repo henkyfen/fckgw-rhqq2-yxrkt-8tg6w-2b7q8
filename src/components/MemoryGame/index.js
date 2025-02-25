@@ -4,7 +4,8 @@ import MemoryGameScoreboard from './MemoryGameScoreboard.js';
 const baseGameImagePath = './assets/images/memory-game';
 
 /**
- * Class representing a Memory Game.
+ * @class MemoryGame
+ * @classdesc Represents a Memory Game application with a game board, timer, and scoring system.
  * @augments DesktopWindow
  */
 export default class MemoryGame extends DesktopWindow {
@@ -16,17 +17,18 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Gets the current state of the game.
-   * @returns {string} The current state.
+   * @returns {string} The current state of the game.
    */
-  get state() {
+  get state () {
     return this._state;
   }
 
   /**
    * Sets the state of the game and updates the UI accordingly.
+   * Clears any existing timer interval.
    * @param {string} value - The new state value.
    */
-  set state(value) {
+  set state (value) {
     this._state = value;
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
@@ -39,15 +41,15 @@ export default class MemoryGame extends DesktopWindow {
    * Gets the username of the player.
    * @returns {string|null} The username or null if not set.
    */
-  get username() {
+  get username () {
     return this._username || localStorage.getItem('memory-game-username') || null;
   }
 
   /**
-   * Sets the username of the player and optionally remembers it.
-   * @param {object} value - The username object containing username and rememberMe flag.
+   * Sets the username of the player and optionally remembers it in local storage.
+   * @param {object|null} value - The username object containing username and rememberMe flag, or null to clear.
    */
-  set username(value) {
+  set username (value) {
     if (value === null || value === undefined) {
       this._username = null;
       localStorage.removeItem('memory-game-username');
@@ -62,17 +64,18 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Lifecycle method called when the component is added to the DOM.
+   * Initializes the game state based on the presence of a username.
    */
-  connectedCallback() {
+  connectedCallback () {
     super.connectedCallback();
     this.state = this.username ? 'board-choice' : 'username-choice';
   }
 
   /**
    * Creates the control panel for the game window.
-   * @returns {HTMLDivElement} The control panel element.
+   * @returns {HTMLDivElement} The control panel element containing view and settings options.
    */
-  createControlPanel() {
+  createControlPanel () {
     const controlPanel = document.createElement('div');
     controlPanel.classList.add('window__control-panel');
 
@@ -98,8 +101,9 @@ export default class MemoryGame extends DesktopWindow {
   /**
    * Renders the body of the game based on the current state.
    * @param {string} state - The current state of the game.
+   * @throws Will throw an error if the state is invalid.
    */
-  renderBody(state) {
+  renderBody (state) {
     const container = document.createElement('div');
     container.classList.add('app-container');
 
@@ -142,8 +146,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Saves the player's score to local storage.
+   * The score includes the player's name, number of attempts, and time taken.
    */
-  saveScore() {
+  saveScore () {
     const appendix = `${this.boardData.columnCount}x${this.boardData.rowCount}`;
     const localStorageKey = `memory-game-scores-${appendix}`;
     const scores = JSON.parse(localStorage.getItem(localStorageKey)) || [];
@@ -154,9 +159,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Creates the username choice menu.
-   * @returns {HTMLFormElement} The username choice menu element.
+   * @returns {HTMLFormElement} The username choice menu element for user authentication.
    */
-  createUsernameChoiceMenu() {
+  createUsernameChoiceMenu () {
     const menu = document.createElement('form');
     menu.classList.add('auth');
     menu.innerHTML = `
@@ -174,9 +179,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Creates the board choice menu.
-   * @returns {HTMLDivElement} The board choice menu element.
+   * @returns {HTMLDivElement} The board choice menu element for selecting board size.
    */
-  createBoardChoiceMenu() {
+  createBoardChoiceMenu () {
     const menu = document.createElement('div');
     menu.classList.add('menu');
     menu.innerHTML = `
@@ -193,9 +198,10 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   /**
-   * Generates the board data including key mapping and tile data.
+   * Generates the board data, including key mapping and tile data.
+   * Updates the boardData object with keyMapping and tileObjectList.
    */
-  generateBoardData() {
+  generateBoardData () {
     const keyMapping = this.getKeyMapping(this.boardData.rowCount, this.boardData.columnCount);
     this.boardData.keyMapping = keyMapping;
     const tiles = this.generateTileData(this.boardData.rowCount, this.boardData.columnCount);
@@ -204,24 +210,25 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Generates a key mapping for the board based on its size.
+   * Maps keys to tile indices for user interaction.
    * @param {number} rowCount - The number of rows on the board.
    * @param {number} columnCount - The number of columns on the board.
-   * @returns {object} The key mapping object.
+   * @returns {object} The key mapping object where keys are mapped to tile indices.
    */
-  getKeyMapping(rowCount, columnCount) {
+  getKeyMapping (rowCount, columnCount) {
     const keyMapping = {};
     const keys =
       rowCount < 4
         ? [
             ['q', 'w', 'e', 'r'],
             ['a', 's', 'd', 'f'],
-            ['z', 'x', 'c', 'v'],
+            ['z', 'x', 'c', 'v']
           ]
         : [
             ['1', '2', '3', '4'],
             ['q', 'w', 'e', 'r'],
             ['a', 's', 'd', 'f'],
-            ['z', 'x', 'c', 'v'],
+            ['z', 'x', 'c', 'v']
           ];
 
     let index = 0;
@@ -238,11 +245,12 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Generates tile data for the board.
+   * Creates HTML elements for each tile and associates them with image tags.
    * @param {number} rowCount - The number of rows on the board.
    * @param {number} columnCount - The number of columns on the board.
-   * @returns {Array} The array of tile data objects.
+   * @returns {Array} The array of tile data objects, each containing image and tile tags.
    */
-  generateTileData(rowCount, columnCount) {
+  generateTileData (rowCount, columnCount) {
     const totalTiles = rowCount * columnCount;
     const tilesHTML = [];
     for (let i = 0; i < totalTiles; i++) {
@@ -267,7 +275,7 @@ export default class MemoryGame extends DesktopWindow {
         imageTag: imagesHTML[i],
         tileTag: tilesHTML[i],
         isFlipped: false,
-        isMatched: false,
+        isMatched: false
       });
     }
     return tileData;
@@ -275,10 +283,11 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Generates image tags for the tiles.
+   * Randomly assigns images to tiles for the memory game.
    * @param {number} totalTiles - The total number of tiles.
-   * @returns {Array} The array of image elements.
+   * @returns {Array} The array of image elements, each representing a tile's image.
    */
-  generateImageTags(totalTiles) {
+  generateImageTags (totalTiles) {
     const images = [];
     const availableIndices = [1, 2, 3, 4, 5, 6, 7, 8];
     const shuffledIndices = availableIndices.sort(() => Math.random() - 0.5);
@@ -295,10 +304,11 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Creates the game board element.
-   * @param {object} boardData - The data for the board.
-   * @returns {HTMLDivElement} The game board element.
+   * Constructs the game board UI with tiles and a timer.
+   * @param {object} boardData - The data for the board, including tile objects.
+   * @returns {HTMLDivElement} The game board element containing the timer and tiles.
    */
-  createGameBoard(boardData) {
+  createGameBoard (boardData) {
     this.timeLeft = this.boardData.rowCount * this.boardData.columnCount * 2;
     const timer = document.createElement('div');
     timer.classList.add('timer');
@@ -325,9 +335,10 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Handles the click event on menu buttons.
-   * @param {Event} event - The click event.
+   * Updates the board size based on the selected menu option.
+   * @param {Event} event - The click event triggered by a menu button.
    */
-  handleMenuButtonClick({ target }) {
+  handleMenuButtonClick ({ target }) {
     const dataSize = target.dataset.size;
     this.boardData.columnCount = parseInt(dataSize.split('x')[0]);
     this.boardData.rowCount = parseInt(dataSize.split('x')[1]);
@@ -336,9 +347,10 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Handles the click event on tiles.
-   * @param {Event} event - The click event.
+   * Flips the tile and checks for matches if two tiles are flipped.
+   * @param {Event} event - The click event triggered by a tile.
    */
-  handleTileClick({ target }) {
+  handleTileClick ({ target }) {
     if (target.classList.contains('tile')) {
       if (this.timerInterval === undefined) {
         this.startTimer();
@@ -362,8 +374,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Starts the game timer.
+   * Initializes the timer and updates the display at regular intervals.
    */
-  startTimer() {
+  startTimer () {
     this.startTime = new Date();
     this.updateTimerDisplay();
     this.timerInterval = setInterval(() => {
@@ -378,8 +391,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Updates the timer display on the UI.
+   * Changes the timer color based on the remaining time.
    */
-  updateTimerDisplay() {
+  updateTimerDisplay () {
     const timerElement = this.shadowRoot.getElementById('timer');
     if (timerElement) {
       timerElement.textContent = `${this.timeLeft}s`;
@@ -390,8 +404,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Evaluates the currently flipped tiles to check for matches.
+   * Updates the game state based on whether the tiles match.
    */
-  evaluateFlippedTiles() {
+  evaluateFlippedTiles () {
     const [flippedTile1, flippedTile2] = this.boardData.currentlyFlippedTiles;
 
     if (flippedTile1.imageTag.src === flippedTile2.imageTag.src) {
@@ -429,20 +444,20 @@ export default class MemoryGame extends DesktopWindow {
    * Checks if all tiles have been matched.
    * @returns {boolean} True if all tiles are matched, otherwise false.
    */
-  allTilesMatched() {
+  allTilesMatched () {
     return this.boardData.matchedTilesCount >= this.boardData.tileObjectList.length / 2;
   }
 
   /**
    * Generates a key hint element for a tile.
    * @param {number} tileId - The ID of the tile.
-   * @returns {HTMLSpanElement} The key hint element.
+   * @returns {HTMLSpanElement} The key hint element with the corresponding key hint text.
    */
-  getKeyHint(tileId) {
+  getKeyHint (tileId) {
     const keyHint = document.createElement('span');
     keyHint.classList.add('tile__key-hint');
     const entry = Object.entries(this.boardData.keyMapping).find(
-      ([key, value]) => value === tileId,
+      ([key, value]) => value === tileId
     );
     keyHint.textContent = entry ? entry[0] : '';
     return keyHint;
@@ -450,9 +465,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Generates a hidden tile image tag.
-   * @returns {HTMLImageElement} The hidden tile image element.
+   * @returns {HTMLImageElement} The hidden tile image element with a default image source.
    */
-  generateHiddenTileImageTag() {
+  generateHiddenTileImageTag () {
     const hiddenImageTag = document.createElement('img');
     hiddenImageTag.src = `${baseGameImagePath}/0.png`;
     hiddenImageTag.style.pointerEvents = 'none';
@@ -462,9 +477,9 @@ export default class MemoryGame extends DesktopWindow {
   /**
    * Creates the game over window element.
    * @param {string} state - The state of the game ('win' or 'fail').
-   * @returns {HTMLDivElement} The game over window element.
+   * @returns {HTMLDivElement} The game over window element with a message and control buttons.
    */
-  createGameOverWindow(state) {
+  createGameOverWindow (state) {
     const gameOverWindow = document.createElement('div');
     gameOverWindow.classList.add('game-over');
 
@@ -503,17 +518,17 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Creates the scoreboard element.
-   * @returns {MemoryGameScoreboard} The scoreboard element.
+   * @returns {MemoryGameScoreboard} The scoreboard element for displaying game scores.
    */
-  createScoreboard() {
+  createScoreboard () {
     const scoreBoard = new MemoryGameScoreboard(this);
     return scoreBoard;
   }
 
   /**
-   * Adds event listeners for the game.
+   * Adds event listeners for the game, including click, keydown, and submit events.
    */
-  addEventListeners() {
+  addEventListeners () {
     super.addEventListeners();
     this.shadowRoot.addEventListener('click', this.handleClick.bind(this));
     window.addEventListener('keydown', this.handleKeydown.bind(this));
@@ -522,9 +537,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Handles the submit event for the username form.
-   * @param {Event} event - The submit event.
+   * @param {Event} event - The submit event triggered by the form submission.
    */
-  handleSubmit(event) {
+  handleSubmit (event) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
@@ -539,9 +554,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Handles the keydown event for keyboard interactions.
-   * @param {Event} event - The keydown event.
+   * @param {Event} event - The keydown event triggered by a key press.
    */
-  handleKeydown(event) {
+  handleKeydown (event) {
     if (!this.isFocused || this.state !== 'game') return;
 
     if (event.key === 'Escape') {
@@ -563,9 +578,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Handles the click event for various game actions.
-   * @param {Event} event - The click event.
+   * @param {Event} event - The click event triggered by user interaction.
    */
-  handleClick(event) {
+  handleClick (event) {
     const action = event.target.dataset.action;
 
     switch (action) {
@@ -591,9 +606,9 @@ export default class MemoryGame extends DesktopWindow {
   }
 
   /**
-   * Restarts the game with the current board size.
+   * Restarts the game with the current board size, resetting attempts and state.
    */
-  restartGame() {
+  restartGame () {
     const rowCount = this.boardData.rowCount;
     const columnCount = this.boardData.columnCount;
 
@@ -607,9 +622,9 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Gets an empty board data object.
-   * @returns {object} The empty board data object.
+   * @returns {object} The empty board data object with default values.
    */
-  getEmptyBoardData() {
+  getEmptyBoardData () {
     return {
       rowCount: 0,
       columnCount: 0,
@@ -617,15 +632,15 @@ export default class MemoryGame extends DesktopWindow {
       timeLeft: 0,
       tileObjectList: [],
       currentlyFlippedTiles: [],
-      matchedTilesCount: 0,
+      matchedTilesCount: 0
     };
   }
 
   /**
    * Gets the styles for the game component.
-   * @returns {string} The styles as a string.
+   * @returns {string} The styles as a string for the game component.
    */
-  getStyles() {
+  getStyles () {
     return (
       super.getStyles() +
       `

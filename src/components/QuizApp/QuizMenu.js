@@ -1,10 +1,12 @@
 /**
- * QuizMenu is a custom HTML element that represents the menu
- * for starting a quiz. It includes an input field for the username
- * and a button to start the quiz.
+ * @class QuizMenu
+ * @classdesc A custom HTML element that represents the menu for starting a quiz.
+ * It includes an input field for the username and a button to start the quiz.
+ * This component is responsible for rendering the menu and handling user interactions
+ * such as form submission and keydown events.
+ * @augments HTMLElement
  */
 export default class QuizMenu extends HTMLElement {
-  /** @private */
   shadowRoot = this.attachShadow({ mode: 'open' });
   quizAppElement;
   /**
@@ -12,7 +14,7 @@ export default class QuizMenu extends HTMLElement {
    * and binds event handlers.
    * @param {HTMLElement} quizAppElement - The parent quiz app element.
    */
-  constructor(quizAppElement) {
+  constructor (quizAppElement) {
     super();
     this.quizAppElement = quizAppElement;
     this.render();
@@ -24,7 +26,7 @@ export default class QuizMenu extends HTMLElement {
    * Initializes the component by setting up event listeners and
    * restoring the username from local storage if available.
    */
-  connectedCallback() {
+  connectedCallback () {
     window.addEventListener('keydown', this.handleKeyDown);
     const username = localStorage.getItem('quiz-app-username');
 
@@ -40,7 +42,7 @@ export default class QuizMenu extends HTMLElement {
    * Lifecycle method called when the element is removed from the document.
    * Cleans up the global keydown event listener.
    */
-  disconnectedCallback() {
+  disconnectedCallback () {
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
@@ -49,7 +51,7 @@ export default class QuizMenu extends HTMLElement {
    * with styles and template, and adds event listeners for form submission.
    * @private
    */
-  render() {
+  render () {
     this.shadowRoot.innerHTML = this.getStyles() + this.getTemplate();
   }
 
@@ -85,7 +87,7 @@ export default class QuizMenu extends HTMLElement {
    * @param {KeyboardEvent} event - The keydown event.
    * @private
    */
-  handleKeyDown(event) {
+  handleKeyDown (event) {
     if (!this.quizAppElement.isFocused) return;
 
     const inputField = this.shadowRoot.querySelector('input[type="text"]');
@@ -107,7 +109,7 @@ export default class QuizMenu extends HTMLElement {
    * @returns {boolean} True if a modifier key is pressed, false otherwise.
    * @private
    */
-  isModifierKeyPressed(event) {
+  isModifierKeyPressed (event) {
     return event.ctrlKey || event.altKey || event.metaKey;
   }
 
@@ -116,7 +118,7 @@ export default class QuizMenu extends HTMLElement {
    * @returns {string} The HTML template string.
    * @private
    */
-  getTemplate() {
+  getTemplate () {
     return `
       <form class="menu">
         <h2 class="menu__title">Welcome to the Quiz!</h2>
@@ -137,7 +139,7 @@ export default class QuizMenu extends HTMLElement {
    * @returns {string} The CSS styles string.
    * @private
    */
-  getStyles() {
+  getStyles () {
     const parentStyles = this.quizAppElement.getStyles();
     const filteredStyles = parentStyles.replace(/:host\s*{[^}]*}/g, '');
     return (
