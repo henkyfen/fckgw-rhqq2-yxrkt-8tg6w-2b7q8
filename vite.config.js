@@ -1,8 +1,9 @@
 export default {
   root: 'src',
   build: {
-    outDir: '../dist',
+    outDir: '../build',
     emptyOutDir: true,
-    target: 'esnext'
+    target: 'esnext',
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.gif', '**/*.webp']
   }
 };
