@@ -1,6 +1,10 @@
+import OpenAI from 'openai';
 import DesktopWindow from '../DesktopWindow/index.js';
 
 const baseChatImagePath = './assets/images/chat-app';
+
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+const openai = apiKey ? new OpenAI({ apiKey, dangerouslyAllowBrowser: true }) : null;
 
 export default class ChatApp extends DesktopWindow {
   _state;
@@ -38,6 +42,7 @@ export default class ChatApp extends DesktopWindow {
   socket;
   apiKey = 'eDBE76deU7L0H9mEBgxUKVR0VCnq0XBd';
   channel = 'default_channel';
+  filterProfanity;
   messages = [];
   messageListElement;
   changeChannelButton;
@@ -151,6 +156,7 @@ export default class ChatApp extends DesktopWindow {
     const channel = formData.get('channel');
     if (channel) {
       this.channel = channel;
+      this.filterProfanity = !!formData.get('profanity');
       this.state = 'chat';
     }
   }
@@ -240,6 +246,10 @@ export default class ChatApp extends DesktopWindow {
       <img src="${baseChatImagePath}/logo.webp" alt="Messenger Logo" />
       <label for="channel">Enter channel name</label>
       <input type="text" name="channel" placeholder="default_channel" value="default_channel" required />
+      <div class="form__checkbox">
+        <input type="checkbox" id="profanity" name="profanity" />
+        <label for="profanity">Profanity filter</label>
+      </div>
       <button type="submit">Connect</button>
     `;
 
@@ -357,14 +367,37 @@ export default class ChatApp extends DesktopWindow {
     this.messageListElement.scrollTop = this.messageListElement.scrollHeight;
   }
 
-  handleMessage(event) {
+  async handleMessage(event) {
     const message = JSON.parse(event.data);
     if (message.type !== 'heartbeat') {
-      this.messages.push(message);
-      localStorage.setItem(this.channel, JSON.stringify(this.messages));
-      const messageElement = this.createMessageElement(message);
-      this.messageListElement.appendChild(messageElement);
-      this.scrollToBottom();
+      if (openai && this.filterProfanity) {
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            {
+              role: 'user',
+              content:
+                'Please review the message and respond strictly with "yes" if there is any' +
+                'inappropriate, offensive, or explicit language, including but not limited' +
+                'to slurs, sexual content, or abusive language. Otherwise, respond strictly' +
+                'with "no". Do not provide any other response. Here is the message:\n' +
+                message.data,
+            },
+          ],
+        });
+
+        if (completion.choices[0].message.content.toLowerCase() === 'yes') {
+          message.data = '[message removed due to inappropriate language]';
+        }
+      }
+      if (this.messages && this.messageListElement) {
+        this.messages.push(message);
+        localStorage.setItem(this.channel, JSON.stringify(this.messages));
+        const messageElement = this.createMessageElement(message);
+        this.messageListElement.appendChild(messageElement);
+        this.scrollToBottom();
+      }
     }
   }
 
