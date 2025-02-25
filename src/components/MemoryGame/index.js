@@ -5,7 +5,7 @@ const baseGameImagePath = './assets/images/memory-game';
 
 /**
  * Class representing a Memory Game.
- * @extends DesktopWindow
+ * @augments DesktopWindow
  */
 export default class MemoryGame extends DesktopWindow {
   _state;
@@ -45,7 +45,7 @@ export default class MemoryGame extends DesktopWindow {
 
   /**
    * Sets the username of the player and optionally remembers it.
-   * @param {Object} value - The username object containing username and rememberMe flag.
+   * @param {object} value - The username object containing username and rememberMe flag.
    */
   set username(value) {
     if (value === null || value === undefined) {
@@ -65,7 +65,7 @@ export default class MemoryGame extends DesktopWindow {
    */
   connectedCallback() {
     super.connectedCallback();
-    this.state = 'username-choice';
+    this.state = this.username ? 'board-choice' : 'username-choice';
   }
 
   /**
