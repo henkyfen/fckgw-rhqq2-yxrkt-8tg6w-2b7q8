@@ -81,18 +81,21 @@ export default class ChatApp extends DesktopWindow {
     this.body.style.width = '250px';
     this.body.style.height = '400px';
 
-    if (state === 'username-choice') {
+    if (this.username) {
+      this.changeChannelButton.classList.remove('disabled');
+    } else {
       this.changeChannelButton.classList.add('disabled');
-      if (this.username) {
-        this.state = 'channel-choice';
-        return;
-      }
+    }
+
+    if (state === 'username-choice') {
       this.body.replaceChildren(this.createUsernameChoiceMenu());
     } else if (state === 'channel-choice') {
-      this.changeChannelButton.classList.add('disabled');
+      if (!this.username) {
+        this.state = 'username-choice';
+        return;
+      }
       this.body.replaceChildren(this.createChannelChoiceMenu());
     } else if (state === 'chat') {
-      this.changeChannelButton.classList.remove('disabled');
       const { messageListElement, chat } = this.createChat();
       this.messageListElement = messageListElement;
       this.body.replaceChildren(chat);
