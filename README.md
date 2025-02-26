@@ -100,6 +100,8 @@ npm run serve
 
 ## 📝 Notes on Code Structure & Challenges
 
+![UML Diagram](docs/uml.png)
+
 I decided to build the entire application using vanilla HTML, CSS, and JavaScript, utilizing the [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) as it offered a nice solution for creating reusable and encapsulated custom elements. The [src/index.js](src/index.js) file is used solely to load these components, with [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) being the main one. This is the only element rendered in [src/index.html](src/index.html), and it orchestrates all other components. I aimed to replicate a Vue.js single-component structure by combining HTML, CSS, and JS for each component. This approach provided a centralized and well-encapsulated code structure, but it also introduced challenges, such as Prettier not recognizing CSS code embedded within JavaScript template literals.
 
 For state management, I chose an event-driven architecture with [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) acting as the broker and event data storage. While a centralized state management solution might have been more efficient, it would have increased development overhead. Custom events naturally fit with WebComponents, making this a practical choice.
