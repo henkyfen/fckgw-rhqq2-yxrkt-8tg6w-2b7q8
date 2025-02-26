@@ -1,4 +1,7 @@
 # 📚 Windows XP
+
+For visualized instructions on how to use the app, go [here](docs/)
+
 ## 📝 Overview
 
 This project simulates the Windows XP Luna themed UI in a browser environment using vanilla HTML, CSS, and JavaScript with the WebComponents API. It features three main applications:
