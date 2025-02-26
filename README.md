@@ -1,5 +1,7 @@
 # 📚 Windows XP
 
+**Note! Profanity filter doesn't work on the Vercrel deployment.**
+
 For visualized instructions on how to use the app, go [here](docs/)
 
 ## 📝 Overview
