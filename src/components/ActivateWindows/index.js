@@ -193,5 +193,3 @@ export default class ActivateWindows extends DesktopWindow {
 }
 
 customElements.define('activate-windows', ActivateWindows);
-
-
