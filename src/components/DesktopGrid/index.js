@@ -30,31 +30,14 @@ export default class DesktopGrid extends HTMLElement {
     const grid = document.createElement('div');
     grid.classList.add('grid');
 
-    const memoryGameIcon = document.createElement('desktop-icon');
-    memoryGameIcon.setAttribute('name', 'Memory Game');
-    memoryGameIcon.setAttribute('target-tag-name', 'memory-game');
-    memoryGameIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/memory-game.png`);
-    memoryGameIcon.style.gridColumnStart = 1;
-    memoryGameIcon.style.gridRowStart = 1;
+    const activateWindowsIcon = document.createElement('desktop-icon');
+    activateWindowsIcon.setAttribute('name', 'Activate Windows');
+    activateWindowsIcon.setAttribute('target-tag-name', 'activate-windows');
+    activateWindowsIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/activate-windows.png`);
+    activateWindowsIcon.style.gridColumnStart = 1;
+    activateWindowsIcon.style.gridRowStart = 1;
 
-    const chatAppIcon = document.createElement('desktop-icon');
-    chatAppIcon.setAttribute('name', 'Messenger');
-    chatAppIcon.setAttribute('target-tag-name', 'chat-app');
-    chatAppIcon.setAttribute('resizable', 'false');
-    chatAppIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/messenger.png`);
-    chatAppIcon.style.gridColumnStart = 2;
-    chatAppIcon.style.gridRowStart = 1;
-
-    const quizAppIcon = document.createElement('desktop-icon');
-    quizAppIcon.setAttribute('name', 'Quiz App');
-    quizAppIcon.setAttribute('target-tag-name', 'quiz-app');
-    quizAppIcon.setAttribute('icon-src', `${baseDesktopIconsImagePath}/quiz-app.png`);
-    quizAppIcon.style.gridColumnStart = 3;
-    quizAppIcon.style.gridRowStart = 1;
-
-    grid.appendChild(memoryGameIcon);
-    grid.appendChild(chatAppIcon);
-    grid.appendChild(quizAppIcon);
+    grid.appendChild(activateWindowsIcon);
 
     this.shadowRoot.appendChild(grid);
   }
