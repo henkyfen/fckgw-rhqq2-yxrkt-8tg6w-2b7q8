@@ -98,8 +98,8 @@ export default class ActivateWindows extends DesktopWindow {
 
   /**
    * Handles keyup events for navigation between input fields.
-   * @param {KeyboardEvent} event
-   * @param {number} index
+   * @param {KeyboardEvent} event - The keyup event.
+   * @param {number} index - The index of the input field that triggered the event.
    */
   handleKeyup (event, index) {
     if (event.key === 'Backspace' && event.target.value.length === 0 && index > 0) {
@@ -127,8 +127,8 @@ export default class ActivateWindows extends DesktopWindow {
    */
   getStyles () {
     return (
-        super.getStyles() +
-        `
+      super.getStyles() +
+      `
       <style>
         .container {
           padding: 1rem;
