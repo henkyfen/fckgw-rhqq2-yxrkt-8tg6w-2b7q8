@@ -11,14 +11,31 @@ export default class ActivateWindows extends DesktopWindow {
   #correctKey = 'FCKGW-RHQQ2-YXRKT-8TG6W-2B7Q8';
   #form;
   #inputs;
-  #nextButton;
+  #_state;
+
+  /**
+   * Gets the current state of the application.
+   * @returns {string} The current state.
+   */
+  get state () {
+    return this.#_state;
+  }
+
+  /**
+   * Sets the state of the application and updates the UI.
+   * @param {string} value - The new state to set.
+   */
+  set state (value) {
+    this.#_state = value;
+    this.renderBody();
+  }
 
   /**
    * Lifecycle method called when the component is added to the DOM.
    */
   connectedCallback () {
     super.connectedCallback();
-    this.renderBody();
+    this.state = 'activation';
   }
 
   /**
@@ -29,45 +46,52 @@ export default class ActivateWindows extends DesktopWindow {
     this.body.style.height = '360px';
     this.body.style.position = 'relative';
 
-    this.body.innerHTML = `
-      <div class="container">
-        <img src="${baseActivateWindowsImagePath}/installer-icon.png" alt="Installer Icon" class="installer-icon" />
-        <div class="header">
-          <h2>Your Product Key</h2>
-          <p>Type the unique product key for your copy of Windows.</p>
+    const container = document.createElement('div');
+    container.className = 'container';
+    container.innerHTML = `
+      <img src="${baseActivateWindowsImagePath}/installer-icon.png" alt="Installer Icon" class="installer-icon" />
+      <div class="header">
+        <h2>Your Product Key</h2>
+        <p>Type the unique product key for your copy of Windows.</p>
+      </div>
+      <div class="content">
+        <div class="content__left">
+          <img src="${baseActivateWindowsImagePath}/certificate-of-authenticity.png" alt="Certificate of Authenticity" />
         </div>
-        <div class="content">
-          <div class="content__left">
-            <img src="${baseActivateWindowsImagePath}/certificate-of-authenticity.png" alt="Certificate of Authenticity" />
-          </div>
-          <div class="content__right">
-            <p>The 25-character product key appears on the lower section of your Certificate of Authenticity.</p>
-            <p>Entering your product key now is optional but strongly recommended to help avoid complications during activation.</p>
-          </div>
+        <div class="content__right">
+          <p>The 25-character product key appears on the lower section of your Certificate of Authenticity.</p>
+          <p>Entering your product key now is optional but strongly recommended to help avoid complications during activation.</p>
         </div>
-        <form id="activation-form" class="form">
-          <label for="key-part-1">Product key:</label>
-          <div class="form__inputs">
-            <input type="text" id="key-part-1" name="key-part-1" maxlength="5" required> -
-            <input type="text" id="key-part-2" name="key-part-2" maxlength="5" required> -
-            <input type="text" id="key-part-3" name="key-part-3" maxlength="5" required> -
-            <input type="text" id="key-part-4" name="key-part-4" maxlength="5" required> -
-            <input type="text" id="key-part-5" name="key-part-5" maxlength="5" required>
-          </div>
-        </form>
-        <div class="footer">
-            <button type="button" id="back-button" disabled>&lt; <u>B</u>ack</button>
-            <button type="submit" form="activation-form" id="next-button"><u>N</u>ext &gt;</button>
-            <button type="button" id="cancel-button">Cancel</button>
+      </div>
+      <form id="activation-form" class="form">
+        <label for="key-part-1">Product key:</label>
+        <div class="form__inputs">
+          <input type="text" id="key-part-1" name="key-part-1" maxlength="5" required> -
+          <input type="text" id="key-part-2" name="key-part-2" maxlength="5" required> -
+          <input type="text" id="key-part-3" name="key-part-3" maxlength="5" required> -
+          <input type="text" id="key-part-4" name="key-part-4" maxlength="5" required> -
+          <input type="text" id="key-part-5" name="key-part-5" maxlength="5" required>
         </div>
+      </form>
+      <div class="footer">
+          <button type="button" id="back-button" disabled>&lt; <u>B</u>ack</button>
+          <button type="submit" form="activation-form" id="next-button"><u>N</u>ext &gt;</button>
+          <button type="button" id="cancel-button">Cancel</button>
       </div>
     `;
 
+    this.body.replaceChildren(container);
+
     this.#form = this.body.querySelector('#activation-form');
     this.#inputs = this.body.querySelectorAll('.form__inputs input');
-    this.#nextButton = this.body.querySelector('#next-button');
     const cancelButton = this.body.querySelector('#cancel-button');
+
+    // Attach event listeners after elements are created
     cancelButton.addEventListener('click', () => this.close());
+    this.#inputs.forEach((input, index) => {
+      input.addEventListener('input', (event) => this.handleInput(event, index));
+      input.addEventListener('keyup', (event) => this.handleKeyup(event, index));
+    });
   }
 
   /**
@@ -75,11 +99,7 @@ export default class ActivateWindows extends DesktopWindow {
    */
   addEventListeners () {
     super.addEventListeners();
-    this.#form.addEventListener('submit', this.handleSubmit.bind(this));
-    this.#inputs.forEach((input, index) => {
-      input.addEventListener('input', (event) => this.handleInput(event, index));
-      input.addEventListener('keyup', (event) => this.handleKeyup(event, index));
-    });
+    this.body.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
   /**
@@ -113,9 +133,11 @@ export default class ActivateWindows extends DesktopWindow {
    */
   handleSubmit (event) {
     event.preventDefault();
+    if (event.target.id !== 'activation-form') return;
+
     const enteredKey = Array.from(this.#inputs).map(input => input.value).join('-');
     if (enteredKey === this.#correctKey) {
-      window.location.href = 'https://github.com/rickroll-it/rickroll-it';
+      window.location.href = 'https://henkas.eu';
     } else {
       alert('The product key you entered is not valid.');
     }
