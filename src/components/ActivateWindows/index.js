@@ -42,15 +42,18 @@ export default class ActivateWindows extends DesktopWindow {
   renderBody () {
     this.body.style.width = '480px';
     this.body.style.height = '360px';
-    this.body.style.position = 'relative';
+    // Reset padding to let child elements control their own layout.
+    this.body.style.padding = '0';
 
     this.body.innerHTML = `
-      <div class="container">
-        <img src="${baseActivateWindowsImagePath}/installer-icon.png" alt="Installer Icon" class="installer-icon" />
-        <div class="header">
+      <div class="header-section">
+        <div class="header-text">
           <h2>Your Product Key</h2>
-          <p>Type the unique product key for your copy of Windows.</p>
+          <p class="header-subtitle">Your Product Key uniquely identifies your copy of Windows XP.</p>
         </div>
+        <img src="${baseActivateWindowsImagePath}/installer-icon.png" alt="Installer Icon" class="installer-icon" />
+      </div>
+      <div class="main-section">
         <div class="content">
           <div class="content__left">
             <img src="${baseActivateWindowsImagePath}/certificate-of-authenticity.png" alt="Certificate of Authenticity" />
@@ -70,11 +73,11 @@ export default class ActivateWindows extends DesktopWindow {
             <input type="text" id="key-part-5" name="key-part-5" maxlength="5" required>
           </div>
         </form>
-        <div class="footer">
-            <button type="button" id="back-button" disabled>&lt; <u>B</u>ack</button>
-            <button type="submit" form="activation-form" id="next-button"><u>N</u>ext &gt;</button>
-            <button type="button" id="cancel-button">Cancel</button>
-        </div>
+      </div>
+      <div class="footer">
+          <button type="button" id="back-button" disabled>&lt; <u>B</u>ack</button>
+          <button type="submit" form="activation-form" id="next-button"><u>N</u>ext &gt;</button>
+          <button type="button" id="cancel-button">Cancel</button>
       </div>
     `;
 
@@ -85,8 +88,6 @@ export default class ActivateWindows extends DesktopWindow {
 
     // Attach all listeners directly after element creation
     form.addEventListener('submit', (event) => this.handleSubmit(event, inputs));
-
-    // Use the inherited method to close the window, just like the 'X' button
     cancelButton.addEventListener('click', this.handleCloseClick.bind(this));
 
     inputs.forEach((input, index) => {
@@ -132,7 +133,7 @@ export default class ActivateWindows extends DesktopWindow {
     const enteredKey = Array.from(inputs).map(input => input.value).join('-');
 
     if (enteredKey.toUpperCase() === this.#correctKey) {
-      window.location.href = 'https://henkas.eut';
+      window.location.href = 'https://henkas.eu';
     } else {
       alert('The product key you entered is not valid.');
     }
@@ -147,30 +148,37 @@ export default class ActivateWindows extends DesktopWindow {
       super.getStyles() +
       `
       <style>
-        .container {
+        .header-section {
+          background-color: white;
           padding: 1rem;
-          height: 100%;
-          box-sizing: border-box;
+          margin: 3px; /* Match the parent window's internal border */
+          border-bottom: 1px solid #d4d0c8;
           display: flex;
-          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
         }
-        .installer-icon {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          width: 48px;
-          height: 48px;
-        }
-        .header h2 {
+        .header-text h2 {
           font-size: 1.1em;
           margin: 0 0 0.5rem 0;
         }
-        .header p {
+        .header-text p {
           margin: 0;
+        }
+        .header-subtitle {
+          padding-left: 1em;
+        }
+        .installer-icon {
+          width: 48px;
+          height: 48px;
+        }
+        .main-section {
+          padding: 1rem;
+          padding-top: 0;
         }
         .content {
           display: flex;
-          margin: 1.5rem 0;
+          margin-top: 0.5rem;
+          margin-bottom: 1.5rem;
           gap: 1rem;
         }
         .content__left img {
