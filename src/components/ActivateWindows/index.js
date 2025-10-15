@@ -133,7 +133,7 @@ export default class ActivateWindows extends DesktopWindow {
     const enteredKey = Array.from(inputs).map(input => input.value).join('-');
 
     if (enteredKey.toUpperCase() === this.#correctKey) {
-      window.location.href = 'https://henkas.eu';
+      window.location.href = 'https://archive.org/details/WinXPProSP3x86';
     } else {
       alert('The product key you entered is not valid.');
     }
