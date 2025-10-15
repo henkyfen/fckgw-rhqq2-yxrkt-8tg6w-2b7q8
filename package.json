@@ -1,5 +1,5 @@
 {
-  "name": "windows-xp",
+  "name": "fckgw-rhqq2-yxrkt-8tg6w-2b7q8",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -20,8 +20,8 @@
     "clean-all": "npm run clean && rm -rf node_modules/ && rm -f package-lock.json"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Henki Papp",
+  "license": "MIT",
   "devDependencies": {
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
