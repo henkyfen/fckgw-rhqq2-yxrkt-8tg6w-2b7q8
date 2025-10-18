@@ -1,33 +1,20 @@
-# 📚 Windows XP
-
-**Note! Profanity filter doesn't work on the Vercrel deployment.**
-
-For visualized instructions on how to use the app, go [here](docs/)
+# 🖥️ fckgw-rhqq2-yxrkt-8tg6w-2b7q8
 
 ## 📝 Overview
 
-This project simulates the Windows XP Luna themed UI in a browser environment using vanilla HTML, CSS, and JavaScript with the WebComponents API. It features three main applications:
-
-1. a chat app
-2. a memory game
-3. a web quiz application inspired by [this repository](https://github.com/Unvares/Web-Quiz).
+This project, based on [Unvares/windows-xp](https://github.com/Unvares/windows-xp), simulates the Windows XP Luna themed UI in a browser environment using vanilla HTML, CSS, and JavaScript with the WebComponents API. 
 
 ## 🚀 Features
 
-- Taskbar with tab manager and clock.
-- Desktop grid with icons and drag & drop capability that handles collisions.
-- Windows that can be resized, maximized, normalized and minimized.
-- Messenger application
-- Time-limited memory game with a scoreboard
-- Time-limited quiz with a scoreboard
+- Try to figure out the impossible to guess Windows XP product key for a surprise :3
 
 ## 💻 Installation & Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone git@github.com:Unvares/windows-xp.git
-cd windows-xp
+git clone git@github.com:henkyfen/fckgw-rhqq2-yxrkt-8tg6w-2b7q8.git
+cd fckgw-rhqq2-yxrkt-8tg6w-2b7q8
 ```
 
 ### 2. Install Dependencies
@@ -35,10 +22,6 @@ cd windows-xp
 ```bash
 npm install
 ```
-
-### 3. Add OpenAI API key to .env (OPTIONAL)
-
-The chat application includes a profanity filter powered by ChatGPT. To activate this feature, you must provide an OpenAI API key. Add this key to the `.env` file in the `src/` directory. Refer to the `.env.example` file for the correct format.
 
 ## ✅ Running Linters
 
@@ -69,21 +52,17 @@ npm run serve
 ```lua
 ├── src/
 │ ├── components/
-│ │ ├── ChatApp/
+│ │ ├── ActivateWindows/
 │ │ ├── DesktopGrid/
 │ │ ├── DesktopIcon/
 │ │ ├── DesktopTaskbar/
 │ │ ├── DesktopWindow/
-│ │ ├── MemoryGame/
 │ │ ├── PersonalWebDesktop/
-│ │ └── QuizApp/
 │ ├── public/
 | | ├── assets/
 | | └── favicon.ico
 │ ├── styles/
 │ │ └── reset.css
-│ ├── .env
-│ ├── .env.example
 │ ├── index.html
 │ └── index.js
 ├── .editorconfig
@@ -92,31 +71,11 @@ npm run serve
 ├── .jsdoc.json
 ├── .prettierrc
 ├── .stylelintrc.js
+├── LICENSE
 ├── package.json
-├── README_chat.md
 ├── README.md
 └── vite.config.js
 ```
 
-## 📝 Notes on Code Structure & Challenges
-
-![UML Diagram](docs/uml.png)
-
-I decided to build the entire application using vanilla HTML, CSS, and JavaScript, utilizing the [Web Components API](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) as it offered a nice solution for creating reusable and encapsulated custom elements. The [src/index.js](src/index.js) file is used solely to load these components, with [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) being the main one. This is the only element rendered in [src/index.html](src/index.html), and it orchestrates all other components. I aimed to replicate a Vue.js single-component structure by combining HTML, CSS, and JS for each component. This approach provided a centralized and well-encapsulated code structure, but it also introduced challenges, such as Prettier not recognizing CSS code embedded within JavaScript template literals.
-
-For state management, I chose an event-driven architecture with [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) acting as the broker and event data storage. While a centralized state management solution might have been more efficient, it would have increased development overhead. Custom events naturally fit with WebComponents, making this a practical choice.
-
-Regarding component integration, each [DesktopIcon](src/components/DesktopIcon/index.js) in [DesktopGrid](src/components/DesktopGrid/index.js) is associated with a specific target tag. Upon double-clicking, it emits a custom event with that target tag name. [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) listens for this event, creates, and stores the target tag. Each target tag is expected to be a subclass of [DesktopWindow](src/components/DesktopWindow/index.js) and have a corresponding tab in [DesktopTaskbar](src/components/DesktopTaskbar/index.js). The [PersonalWebDesktop](src/components/PersonalWebDesktop/index.js) manages the relationship between the icon, tab, and window. Each component emits events to signal triggered behaviors, such as a tab click or window close.
-
-[DesktopWindow](src/components/DesktopWindow/index.js) provides basic functionality for managing windows, with an empty `.window__body` tag where subclasses define content and logic. Currently, [MemoryGame](src/components/MemoryGame/index.js), [ChatApp](src/components/ChatApp/index.js), and [QuizApp](src/components/QuizApp/index.js) are the only subclasses of [DesktopWindow](src/components/DesktopWindow/index.js).
-
-During development, I faced two main issues:
-
-1. WebComponent instance injection for complex subclasses. The ShadowRoot prevents external CSS from affecting the component, requiring me to inject a parent component instance and render its styles before the child component's styles. This complicates breaking down a large component. While it's often beneficial to encapsulate view logic in separate components, the need for parent component injection (especially for shared state) complicates the process.
-2. Lack of contracts between components. Vanilla JS allows for flexibility but doesn't enforce typing. This can be problematic, especially considering how elusive dataflow in event-driven architecture is. While it was interesting to work with vanilla JS again, I would prefer to use TypeScript if starting over, as it would provide a clearer understanding of data flows and potential bugs.
-
-## 🎨 CSS Methodology
-
-This project follows the **BEM (Block-Element-Modifier)** methodology for naming CSS classes. For more information:
-
-[BEM Official Documentation](https://en.bem.info/methodology/)
+## § License
+This project is licensed under the [MIT license](https://github.com/henkyfen/fckgw-rhqq2-yxrkt-8tg6w-2b7q8/blob/main/LICENSE), same as the [original project](https://github.com/Unvares/windows-xp/blob/main/LICENSE).
